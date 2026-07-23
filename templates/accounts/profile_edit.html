@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile — LoveMatch{% endblock %}
+
+{% block content %}
+<section class="py-4 py-md-5" style="min-height:85vh;background:#1a1a2e;">
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="mb-4">
+            <h2 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;">
+                <i class="bi bi-person-gear me-2" style="color:#ff6b8a;"></i>Edit Your Profile
+            </h2>
+            <p class="text-muted mb-0">Keep your profile fresh to attract better matches</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <!-- Non-field Errors -->
+            {% if user_form.non_field_errors or profile_form.non_field_errors %}
+            <div class="alert py-2 px-3 mb-4" style="background:rgba(220,53,69,.12);border:1px solid rgba(220,53,69,.25);border-radius:12px;color:#ff6b7a;font-size:.9rem;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                {% for error in user_form.non_field_errors %}{{ error }}<br>{% endfor %}
+                {% for error in profile_form.non_field_errors %}{{ error }}<br>{% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="row g-4">
+                <!-- ═══════════ LEFT COLUMN — Profile Picture ═══════════ -->
+                <div class="col-lg-4">
+                    <div class="p-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;position:sticky;top:100px;">
+                        <h6 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;color:rgba(255,255,255,.9);">
+                            <i class="bi bi-camera-fill me-2" style="color:#6c5ce7;"></i>Profile Photo
+                        </h6>
+
+                        <!-- Photo Preview -->
+                        <div class="mb-4">
+                            {% if profile_form.instance.profile_pic %}
+                            <img src="{{ profile_form.instance.profile_pic.url }}" alt="Profile photo" class="rounded-3 shadow" style="width:200px;height:240px;object-fit:cover;border:3px solid rgba(255,107,138,.2);">
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center rounded-3 shadow mx-auto" style="width:200px;height:240px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:4rem;font-weight:700;border:3px solid rgba(255,107,138,.2);">
+                                {{ user.first_name|default:user.username|make_list|first|upper }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Upload Field -->
+                        <div class="mb-2">
+                            <label for="id_profile_pic" class="form-label small text-muted">Upload new photo</label>
+                            <input type="file" name="profile_pic" id="id_profile_pic" accept="image/*"
+                                   class="form-control form-control-sm"
+                                   style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.7);font-size:.85rem;">
+                            {% for error in profile_form.profile_pic.errors %}
+                                <div class="small mt-1" style="color:#ff6b7a;"><i class="bi bi-x-circle-fill me-1"></i>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <p class="text-muted mb-0" style="font-size:.75rem;">JPG, PNG or WebP. Max 5MB.</p>
+                    </div>
+                </div>
+
+                <!-- ═══════════ RIGHT COLUMN — Form Fields ═══════════ -->
+                <div class="col-lg-8">
+                    <!-- Personal Information -->
+                    <div class="p-4 mb-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
+                        <h6 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;color:rgba(255,255,255,.9);">
+                            <i class="bi bi-person-fill me-2" style="color:#ff6b8a;"></i>Personal Information
+                        </h6>
+
+                        <div class="row g-3">
+                            <!-- First Name -->
+                            <div class="col-md-6">
+                                <label for="id_first_name" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">First Name</label>
+                                <input type="text" name="first_name" id="id_first_name"
+                                       value="{{ user_form.first_name.value|default:'' }}"
+                                       class="form-control {% if user_form.first_name.errors %}is-invalid{% endif %}"
+                                       placeholder="Your first name"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
+                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.1)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                {% for error in user_form.first_name.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <!-- Last Name -->
+                            <div class="col-md-6">
+                                <label for="id_last_name" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Last Name</label>
+                                <input type="text" name="last_name" id="id_last_name"
+                                       value="{{ user_form.last_name.value|default:'' }}"
+                                       class="form-control {% if user_form.last_name.errors %}is-invalid{% endif %}"
+                                       placeholder="Your last name"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
+                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.1)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                {% for error in user_form.last_name.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <!-- Email -->
+                            <div class="col-12">
+                                <label for="id_email" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Email Address</label>
+                                <input type="email" name="email" id="id_email"
+                                       value="{{ user_form.email.value|default:'' }}"
+                                       class="form-control {% if user_form.email.errors %}is-invalid{% endif %}"
+                                       placeholder="your@email.com"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
+                                       onfocus="this.style.borderColor='#6c5ce7';this.style.boxShadow='0 0 0 3px rgba(108,92,231,.1)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                {% for error in user_form.email.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- About You -->
+                    <div class="p-4 mb-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
+                        <h6 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;color:rgba(255,255,255,.9);">
+                            <i class="bi bi-heart-fill me-2" style="color:#6c5ce7;"></i>About You
+                        </h6>
+
+                        <div class="row g-3">
+                            <!-- Bio -->
+                            <div class="col-12">
+                                <label for="id_bio" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Bio</label>
+                                <textarea name="bio" id="id_bio" rows="4"
+                                          class="form-control {% if profile_form.bio.errors %}is-invalid{% endif %}"
+                                          placeholder="Tell others about yourself — what makes you unique?"
+                                          style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;resize:vertical;"
+                                          onfocus="this.style.borderColor='#6c5ce7';this.style.boxShadow='0 0 0 3px rgba(108,92,231,.1)'"
+                                          onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">{{ profile_form.bio.value|default:'' }}</textarea>
+                                {% for error in profile_form.bio.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <!-- Birth Date -->
+                            <div class="col-md-6">
+                                <label for="id_birth_date" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Birth Date</label>
+                                <input type="date" name="birth_date" id="id_birth_date"
+                                       value="{{ profile_form.birth_date.value|default:'' }}"
+                                       class="form-control {% if profile_form.birth_date.errors %}is-invalid{% endif %}"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
+                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.1)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                {% for error in profile_form.birth_date.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <!-- Gender -->
+                            <div class="col-md-6">
+                                <label for="id_gender" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Gender</label>
+                                <select name="gender" id="id_gender"
+                                        class="form-select {% if profile_form.gender.errors %}is-invalid{% endif %}"
+                                        style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;">
+                                    <option value="" style="background:#1a1a2e;">Select gender</option>
+                                    {% for value, label in profile_form.gender.field.choices %}
+                                        {% if value %}
+                                        <option value="{{ value }}" {% if profile_form.gender.value == value %}selected{% endif %} style="background:#1a1a2e;">{{ label }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                {% for error in profile_form.gender.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <!-- City -->
+                            <div class="col-md-6">
+                                <label for="id_city" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">City</label>
+                                <input type="text" name="city" id="id_city"
+                                       value="{{ profile_form.city.value|default:'' }}"
+                                       class="form-control {% if profile_form.city.errors %}is-invalid{% endif %}"
+                                       placeholder="e.g. New York"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
+                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.1)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                {% for error in profile_form.city.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <!-- Looking For -->
+                            <div class="col-md-6">
+                                <label for="id_looking_for" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Looking For</label>
+                                <select name="looking_for" id="id_looking_for"
+                                        class="form-select {% if profile_form.looking_for.errors %}is-invalid{% endif %}"
+                                        style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;">
+                                    <option value="" style="background:#1a1a2e;">Select preference</option>
+                                    {% for value, label in profile_form.looking_for.field.choices %}
+                                        {% if value %}
+                                        <option value="{{ value }}" {% if profile_form.looking_for.value == value %}selected{% endif %} style="background:#1a1a2e;">{{ label }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                {% for error in profile_form.looking_for.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <!-- Interests -->
+                            <div class="col-12">
+                                <label for="id_interests" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Interests</label>
+                                <input type="text" name="interests" id="id_interests"
+                                       value="{{ profile_form.interests.value|default:'' }}"
+                                       class="form-control {% if profile_form.interests.errors %}is-invalid{% endif %}"
+                                       placeholder="e.g. Travel, Music, Photography, Cooking"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
+                                       onfocus="this.style.borderColor='#6c5ce7';this.style.boxShadow='0 0 0 3px rgba(108,92,231,.1)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                <div class="form-text small" style="color:rgba(255,255,255,.35);">Separate interests with commas</div>
+                                {% for error in profile_form.interests.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex flex-wrap gap-3 justify-content-between">
+                        <a href="{% url 'dashboard' %}" class="btn px-4 py-2 fw-semibold" style="background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.1);border-radius:50px;transition:all .3s ease;" onmouseover="this.style.borderColor='rgba(255,255,255,.25)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.6)'">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn px-5 py-2 fw-semibold text-white shadow" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:50px;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,107,138,.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(0,0,0,.2)'">
+                            <i class="bi bi-check-lg me-1"></i>Save Changes
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+
+    </div>
+</section>
+{% endblock %}

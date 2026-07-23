@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static custom_tags %}
+
+{% block title %}Compatibility Quiz — LoveMatch{% endblock %}
+
+{% block content %}
+<section class="py-4 py-md-5" style="min-height:85vh;background:#1a1a2e;">
+    <!-- Background Accents -->
+    <div class="position-fixed" style="width:400px;height:400px;background:radial-gradient(circle,rgba(255,107,138,.06) 0%,transparent 70%);top:10%;right:-100px;border-radius:50%;pointer-events:none;"></div>
+    <div class="position-fixed" style="width:350px;height:350px;background:radial-gradient(circle,rgba(108,92,231,.06) 0%,transparent 70%);bottom:5%;left:-80px;border-radius:50%;pointer-events:none;"></div>
+
+    <div class="container">
+        
+        <!-- Header Banner -->
+        <div class="text-center max-w-700 mx-auto mb-4 mb-md-5">
+            <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(108,92,231,.15));border-radius:20px;border:1px solid rgba(255,107,138,.2);">
+                <i class="bi bi-journal-check" style="font-size:1.8rem;color:#ff6b8a;"></i>
+            </div>
+            <h2 class="fw-bold mb-2" style="font-family:'Playfair Display',serif;font-size:clamp(1.8rem, 4vw, 2.5rem);">
+                Love Compatibility <span style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Quiz</span>
+            </h2>
+            <p class="text-muted mb-4 fs-6" style="max-width:550px;margin:0 auto;">
+                Answer these fun questions to calculate your real-time compatibility score with potential matches!
+            </p>
+
+            <!-- Progress Bar -->
+            <div class="p-3 p-md-4 rounded-4 shadow-sm text-start" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small fw-semibold text-light"><i class="bi bi-patch-check-fill me-1" style="color:#ff6b8a;"></i> Your Progress</span>
+                    <span class="small fw-bold" style="color:#6c5ce7;">{{ answered_q }} / {{ total_q }} Answered ({{ progress_pct }}%)</span>
+                </div>
+                <div class="progress" style="height:10px;background:rgba(255,255,255,.06);border-radius:10px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                         style="width: {{ progress_pct }}%; background: linear-gradient(90deg,#ff6b8a,#6c5ce7); border-radius:10px;" 
+                         aria-valuenow="{{ progress_pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Form -->
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="row g-4 justify-content-center">
+                {% for question in questions %}
+                <div class="col-12 col-lg-10">
+                    <div class="p-4 p-md-5 rounded-4 position-relative" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);transition:all .3s ease;">
+                        
+                        <!-- Question Category & Number -->
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                            <span class="badge rounded-pill px-3 py-2 text-uppercase fw-semibold" style="background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(108,92,231,.15));color:#ff6b8a;border:1px solid rgba(255,107,138,.2);font-size:.75rem;">
+                                <i class="bi bi-tag-fill me-1"></i>{{ question.category }}
+                            </span>
+                            <span class="text-muted small fw-medium">Question {{ forloop.counter }} of {{ total_q }}</span>
+                        </div>
+
+                        <!-- Question Text -->
+                        <h4 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;color:#fff;font-size:clamp(1.15rem, 2.5vw, 1.4rem);">
+                            {{ question.text }}
+                        </h4>
+
+                        <!-- Options Grid -->
+                        <div class="row g-3">
+                            <!-- Option A -->
+                            <div class="col-12 col-md-6">
+                                <label class="quiz-option-card w-100 p-3 p-md-4 rounded-3 d-flex align-items-center gap-3 cursor-pointer" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);transition:all .25s ease;cursor:pointer;">
+                                    <input type="radio" name="question_{{ question.id }}" value="A" class="form-check-input flex-shrink-0 mt-0"
+                                           style="width:20px;height:20px;accent-color:#ff6b8a;"
+                                           {% with ans=user_answers|get_item:question.id %}{% if ans == 'A' %}checked{% endif %}{% endwith %}>
+                                    <div class="flex-grow-1">
+                                        <span class="badge bg-secondary me-2 rounded-circle" style="width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;">A</span>
+                                        <span class="text-light small fw-medium">{{ question.option_a }}</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Option B -->
+                            <div class="col-12 col-md-6">
+                                <label class="quiz-option-card w-100 p-3 p-md-4 rounded-3 d-flex align-items-center gap-3 cursor-pointer" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);transition:all .25s ease;cursor:pointer;">
+                                    <input type="radio" name="question_{{ question.id }}" value="B" class="form-check-input flex-shrink-0 mt-0"
+                                           style="width:20px;height:20px;accent-color:#ff6b8a;"
+                                           {% with ans=user_answers|get_item:question.id %}{% if ans == 'B' %}checked{% endif %}{% endwith %}>
+                                    <div class="flex-grow-1">
+                                        <span class="badge bg-secondary me-2 rounded-circle" style="width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;">B</span>
+                                        <span class="text-light small fw-medium">{{ question.option_b }}</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Option C -->
+                            <div class="col-12 col-md-6">
+                                <label class="quiz-option-card w-100 p-3 p-md-4 rounded-3 d-flex align-items-center gap-3 cursor-pointer" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);transition:all .25s ease;cursor:pointer;">
+                                    <input type="radio" name="question_{{ question.id }}" value="C" class="form-check-input flex-shrink-0 mt-0"
+                                           style="width:20px;height:20px;accent-color:#ff6b8a;"
+                                           {% with ans=user_answers|get_item:question.id %}{% if ans == 'C' %}checked{% endif %}{% endwith %}>
+                                    <div class="flex-grow-1">
+                                        <span class="badge bg-secondary me-2 rounded-circle" style="width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;">C</span>
+                                        <span class="text-light small fw-medium">{{ question.option_c }}</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Option D -->
+                            <div class="col-12 col-md-6">
+                                <label class="quiz-option-card w-100 p-3 p-md-4 rounded-3 d-flex align-items-center gap-3 cursor-pointer" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);transition:all .25s ease;cursor:pointer;">
+                                    <input type="radio" name="question_{{ question.id }}" value="D" class="form-check-input flex-shrink-0 mt-0"
+                                           style="width:20px;height:20px;accent-color:#ff6b8a;"
+                                           {% with ans=user_answers|get_item:question.id %}{% if ans == 'D' %}checked{% endif %}{% endwith %}>
+                                    <div class="flex-grow-1">
+                                        <span class="badge bg-secondary me-2 rounded-circle" style="width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;">D</span>
+                                        <span class="text-light small fw-medium">{{ question.option_d }}</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Floating/Fixed Submit Section -->
+                <div class="col-12 col-lg-10 text-center mt-4">
+                    <button type="submit" class="btn px-5 py-3 fw-bold text-white shadow-lg" 
+                            style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:50px;font-size:1.1rem;transition:all .3s ease;"
+                            onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 10px 30px rgba(255,107,138,.4)'"
+                            onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                        <i class="bi bi-check2-circle me-2"></i>Save & Calculate Matches
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</section>
+{% endblock %}

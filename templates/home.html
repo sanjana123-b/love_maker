@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LoveMatch — Find Your Perfect Match{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════ HERO SECTION ═══════════════════ -->
+<section class="position-relative overflow-hidden" style="min-height:92vh;display:flex;align-items:center;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#1a1a2e 100%);">
+    <!-- Floating Hearts Background -->
+    <div class="position-absolute w-100 h-100" style="top:0;left:0;pointer-events:none;overflow:hidden;">
+        <div style="position:absolute;top:10%;left:8%;font-size:2.5rem;opacity:.07;animation:floatUp 6s ease-in-out infinite;">❤</div>
+        <div style="position:absolute;top:25%;right:12%;font-size:1.8rem;opacity:.06;animation:floatUp 8s ease-in-out infinite 1s;">💕</div>
+        <div style="position:absolute;top:55%;left:15%;font-size:3rem;opacity:.05;animation:floatUp 7s ease-in-out infinite 2s;">💗</div>
+        <div style="position:absolute;top:70%;right:20%;font-size:2rem;opacity:.06;animation:floatUp 9s ease-in-out infinite .5s;">❤</div>
+        <div style="position:absolute;top:40%;left:75%;font-size:1.5rem;opacity:.05;animation:floatUp 10s ease-in-out infinite 3s;">💖</div>
+        <div style="position:absolute;top:80%;left:50%;font-size:2.2rem;opacity:.04;animation:floatUp 6.5s ease-in-out infinite 1.5s;">💕</div>
+    </div>
+
+    <!-- Glow Orbs -->
+    <div class="position-absolute" style="width:450px;height:450px;background:radial-gradient(circle,rgba(255,107,138,.12) 0%,transparent 70%);top:-100px;right:-100px;border-radius:50%;"></div>
+    <div class="position-absolute" style="width:350px;height:350px;background:radial-gradient(circle,rgba(108,92,231,.12) 0%,transparent 70%);bottom:-80px;left:-80px;border-radius:50%;"></div>
+
+    <div class="container position-relative" style="z-index:2;">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-lg-8 text-center">
+                <!-- Badge -->
+                <div class="mb-4" style="animation:fadeInDown .8s ease;">
+                    <span class="badge px-4 py-2 rounded-pill fs-6" style="background:rgba(255,107,138,.12);color:#ff6b8a;border:1px solid rgba(255,107,138,.25);">
+                        <i class="bi bi-stars me-1"></i> #1 Compatibility Matching Platform
+                    </span>
+                </div>
+
+                <!-- Headline -->
+                <h1 class="display-2 fw-bold mb-4" style="font-family:'Playfair Display',serif;line-height:1.15;animation:fadeInUp .8s ease .2s both;">
+<h1 class="display-2 fw-bold mb-4" style="font-family:'Playfair Display',serif;line-height:1.15;animation:fadeInUp .8s ease .2s both;">
+    <span class="find-your">Find Your</span><br>
+    <span style="background:linear-gradient(135deg,#ff6b8a,#ee5a6f,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Perfect Match</span>
+</h1>
+                </h1>
+
+                <!-- Subheading -->
+                <p class="lead mb-5 mx-auto" style="max-width:560px;color:rgba(255,255,255,.7);font-size:1.2rem;animation:fadeInUp .8s ease .4s both;">
+                    Discover meaningful connections through our intelligent compatibility system. 
+                    Because love deserves more than chance.
+                </p>
+
+                <!-- CTA Buttons -->
+                <div class="d-flex flex-wrap gap-3 justify-content-center" style="animation:fadeInUp .8s ease .6s both;">
+                    <a href="{% url 'register' %}" class="btn btn-lg px-5 py-3 fw-semibold text-white shadow-lg" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:50px;font-size:1.1rem;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 35px rgba(255,107,138,.35)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 15px rgba(0,0,0,.2)'">
+                        <i class="bi bi-heart-fill me-2"></i>Get Started Free
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-lg btn-outline-light px-5 py-3 fw-semibold" style="border-radius:50px;font-size:1.1rem;border-color:rgba(255,255,255,.2);transition:all .3s ease;" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='#ff6b8a';this.style.color='#ff6b8a'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,.2)';this.style.color='#fff'">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                    </a>
+                </div>
+
+                <!-- Stats -->
+                <div class="row g-4 mt-5 pt-3 justify-content-center" style="animation:fadeInUp .8s ease .8s both;">
+                    <div class="col-auto">
+                        <div class="text-center px-4">
+                            <div class="fw-bold fs-3" style="color:#ff6b8a;font-family:'Playfair Display',serif;">10K+</div>
+                            <div class="small text-muted">Active Members</div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="text-center px-4" style="border-left:1px solid rgba(255,255,255,.1);border-right:1px solid rgba(255,255,255,.1);">
+                            <div class="fw-bold fs-3" style="color:#6c5ce7;font-family:'Playfair Display',serif;">85%</div>
+                            <div class="small text-muted">Match Rate</div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="text-center px-4">
+                            <div class="fw-bold fs-3" style="color:#ff6b8a;font-family:'Playfair Display',serif;">2K+</div>
+                            <div class="small text-muted">Happy Couples</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Wave -->
+    <div class="position-absolute w-100" style="bottom:0;left:0;">
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" style="display:block;width:100%;height:80px;">
+            <path d="M0,60 C360,120 1080,0 1440,60 L1440,120 L0,120 Z" fill="#1a1a2e" fill-opacity="0.6"/>
+        </svg>
+    </div>
+</section>
+
+
+<!-- ═══════════════════ FEATURES SECTION ═══════════════════ -->
+<section class="py-5" style="background:#1a1a2e;">
+    <div class="container py-5">
+        <!-- Section Header -->
+        <div class="text-center mb-5">
+            <span class="badge px-3 py-2 rounded-pill mb-3" style="background:rgba(108,92,231,.12);color:#6c5ce7;border:1px solid rgba(108,92,231,.25);font-size:.85rem;">
+                <i class="bi bi-diamond-fill me-1"></i> Why LoveMatch?
+            </span>
+            <h2 class="display-5 fw-bold mb-3" style="font-family:'Playfair Display',serif;">
+                Love, <span style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Reimagined</span>
+            </h2>
+            <p class="text-muted mx-auto" style="max-width:520px;font-size:1.05rem;">Everything you need to find genuine, lasting connections — powered by science and built with heart.</p>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="row g-4">
+            <!-- Card 1 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="h-100 p-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;transition:all .4s ease;" onmouseover="this.style.transform='translateY(-8px)';this.style.borderColor='rgba(255,107,138,.25)';this.style.boxShadow='0 20px 40px rgba(255,107,138,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,.06)';this.style.boxShadow='none'">
+                    <div class="mx-auto mb-4 d-flex align-items-center justify-content-center" style="width:72px;height:72px;background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(108,92,231,.15));border-radius:20px;font-size:2rem;">
+                        🧠
+                    </div>
+                    <h5 class="fw-bold mb-3" style="font-family:'Playfair Display',serif;">Smart Matching</h5>
+                    <p class="text-muted small mb-0">Our compatibility quiz uses proven psychology to find your most compatible partners.</p>
+                </div>
+            </div>
+            <!-- Card 2 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="h-100 p-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;transition:all .4s ease;" onmouseover="this.style.transform='translateY(-8px)';this.style.borderColor='rgba(108,92,231,.25)';this.style.boxShadow='0 20px 40px rgba(108,92,231,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,.06)';this.style.boxShadow='none'">
+                    <div class="mx-auto mb-4 d-flex align-items-center justify-content-center" style="width:72px;height:72px;background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(255,107,138,.15));border-radius:20px;font-size:2rem;">
+                        🔍
+                    </div>
+                    <h5 class="fw-bold mb-3" style="font-family:'Playfair Display',serif;">Browse Profiles</h5>
+                    <p class="text-muted small mb-0">Discover amazing people near you with advanced search filters and curated suggestions.</p>
+                </div>
+            </div>
+            <!-- Card 3 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="h-100 p-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;transition:all .4s ease;" onmouseover="this.style.transform='translateY(-8px)';this.style.borderColor='rgba(255,107,138,.25)';this.style.boxShadow='0 20px 40px rgba(255,107,138,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,.06)';this.style.boxShadow='none'">
+                    <div class="mx-auto mb-4 d-flex align-items-center justify-content-center" style="width:72px;height:72px;background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(238,90,111,.15));border-radius:20px;font-size:2rem;">
+                        💬
+                    </div>
+                    <h5 class="fw-bold mb-3" style="font-family:'Playfair Display',serif;">Real Connections</h5>
+                    <p class="text-muted small mb-0">When both of you match, start chatting instantly. No awkward first moves needed.</p>
+                </div>
+            </div>
+            <!-- Card 4 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="h-100 p-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;transition:all .4s ease;" onmouseover="this.style.transform='translateY(-8px)';this.style.borderColor='rgba(108,92,231,.25)';this.style.boxShadow='0 20px 40px rgba(108,92,231,.08)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,.06)';this.style.boxShadow='none'">
+                    <div class="mx-auto mb-4 d-flex align-items-center justify-content-center" style="width:72px;height:72px;background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(255,107,138,.15));border-radius:20px;font-size:2rem;">
+                        🆓
+                    </div>
+                    <h5 class="fw-bold mb-3" style="font-family:'Playfair Display',serif;">100% Free</h5>
+                    <p class="text-muted small mb-0">No hidden costs, no premium gates. Every feature is available to everyone, forever.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════ HOW IT WORKS ═══════════════════ -->
+<section class="py-5 position-relative" style="background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%);">
+    <div class="container py-5">
+        <!-- Section Header -->
+        <div class="text-center mb-5">
+            <span class="badge px-3 py-2 rounded-pill mb-3" style="background:rgba(255,107,138,.12);color:#ff6b8a;border:1px solid rgba(255,107,138,.25);font-size:.85rem;">
+                <i class="bi bi-signpost-2-fill me-1"></i> Simple Steps
+            </span>
+            <h2 class="display-5 fw-bold mb-3" style="font-family:'Playfair Display',serif;">
+                How It <span style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Works</span>
+            </h2>
+            <p class="text-muted mx-auto" style="max-width:500px;font-size:1.05rem;">Three simple steps to finding the love of your life.</p>
+        </div>
+
+        <!-- Steps -->
+        <div class="row g-4 g-lg-5 align-items-stretch justify-content-center">
+            <!-- Step 1 -->
+            <div class="col-md-4">
+                <div class="text-center p-4 p-lg-5 h-100 position-relative" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
+                    <div class="position-absolute" style="top:-18px;left:50%;transform:translateX(-50%);">
+                        <span class="d-inline-flex align-items-center justify-content-center fw-bold" style="width:36px;height:36px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border-radius:50%;font-size:.9rem;">1</span>
+                    </div>
+                    <div class="mb-4 mt-2" style="font-size:3.5rem;">📝</div>
+                    <h4 class="fw-bold mb-3" style="font-family:'Playfair Display',serif;">Create Your Profile</h4>
+                    <p class="text-muted mb-0">Sign up in seconds and tell us about yourself — your interests, passions, and what you're looking for.</p>
+                </div>
+            </div>
+            <!-- Step 2 -->
+            <div class="col-md-4">
+                <div class="text-center p-4 p-lg-5 h-100 position-relative" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
+                    <div class="position-absolute" style="top:-18px;left:50%;transform:translateX(-50%);">
+                        <span class="d-inline-flex align-items-center justify-content-center fw-bold" style="width:36px;height:36px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border-radius:50%;font-size:.9rem;">2</span>
+                    </div>
+                    <div class="mb-4 mt-2" style="font-size:3.5rem;">🧩</div>
+                    <h4 class="fw-bold mb-3" style="font-family:'Playfair Display',serif;">Take the Quiz</h4>
+                    <p class="text-muted mb-0">Answer fun personality questions. Our algorithm analyses your answers to find truly compatible matches.</p>
+                </div>
+            </div>
+            <!-- Step 3 -->
+            <div class="col-md-4">
+                <div class="text-center p-4 p-lg-5 h-100 position-relative" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
+                    <div class="position-absolute" style="top:-18px;left:50%;transform:translateX(-50%);">
+                        <span class="d-inline-flex align-items-center justify-content-center fw-bold" style="width:36px;height:36px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border-radius:50%;font-size:.9rem;">3</span>
+                    </div>
+                    <div class="mb-4 mt-2" style="font-size:3.5rem;">💕</div>
+                    <h4 class="fw-bold mb-3" style="font-family:'Playfair Display',serif;">Start Matching</h4>
+                    <p class="text-muted mb-0">Browse your matches, like the ones you connect with, and start chatting when the feeling is mutual.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════ FINAL CTA ═══════════════════ -->
+<section class="py-5 position-relative overflow-hidden">
+    <div class="position-absolute w-100 h-100" style="top:0;left:0;background:linear-gradient(135deg,#ff6b8a,#ee5a6f,#6c5ce7);opacity:.9;"></div>
+    <!-- Floating accents -->
+    <div class="position-absolute" style="width:300px;height:300px;background:rgba(255,255,255,.06);border-radius:50%;top:-100px;right:-50px;"></div>
+    <div class="position-absolute" style="width:200px;height:200px;background:rgba(255,255,255,.04);border-radius:50%;bottom:-60px;left:-40px;"></div>
+
+    <div class="container position-relative py-5 text-center" style="z-index:2;">
+        <h2 class="display-4 fw-bold text-white mb-4" style="font-family:'Playfair Display',serif;">
+            Your Love Story<br>Starts Here
+        </h2>
+        <p class="lead text-white mb-5 mx-auto" style="max-width:520px;opacity:.9;">
+            Join thousands of people who found their perfect match. Your someone special might be one click away.
+        </p>
+        <a href="{% url 'register' %}" class="btn btn-lg btn-light px-5 py-3 fw-bold shadow-lg" style="border-radius:50px;font-size:1.1rem;color:#6c5ce7;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-3px) scale(1.02)';this.style.boxShadow='0 15px 40px rgba(0,0,0,.25)'" onmouseout="this.style.transform='translateY(0) scale(1)';this.style.boxShadow='0 4px 15px rgba(0,0,0,.15)'">
+            <i class="bi bi-heart-fill me-2" style="color:#ff6b8a;"></i>Join LoveMatch Free
+        </a>
+    </div>
+</section>
+
+<!-- Keyframe Animations -->
+<style>
+    @keyframes floatUp {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-25px) rotate(5deg); }
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Matches — LoveMatch{% endblock %}
+
+{% block content %}
+<section class="py-4 py-md-5" style="min-height:85vh;background:#1a1a2e;">
+    <!-- Background Accents -->
+    <div class="position-fixed" style="width:400px;height:400px;background:radial-gradient(circle,rgba(255,107,138,.06) 0%,transparent 70%);top:10%;right:-100px;border-radius:50%;pointer-events:none;"></div>
+    <div class="position-fixed" style="width:350px;height:350px;background:radial-gradient(circle,rgba(108,92,231,.06) 0%,transparent 70%);bottom:5%;left:-80px;border-radius:50%;pointer-events:none;"></div>
+
+    <div class="container">
+        
+        <!-- Header -->
+        <div class="text-center max-w-700 mx-auto mb-4 mb-md-5">
+            <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(238,90,111,.15));border-radius:20px;border:1px solid rgba(255,107,138,.2);">
+                <i class="bi bi-hearts" style="font-size:1.8rem;color:#ff6b8a;"></i>
+            </div>
+            <h2 class="fw-bold mb-2" style="font-family:'Playfair Display',serif;font-size:clamp(1.8rem, 4vw, 2.5rem);">
+                Your <span style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Matches</span> & Likes
+            </h2>
+            <p class="text-muted mb-0 fs-6">
+                Discover mutual connections and people who are interested in getting to know you.
+            </p>
+        </div>
+
+        <!-- Responsive Navigation Tabs -->
+        <ul class="nav nav-pills justify-content-center gap-2 mb-4 p-2 rounded-4 mx-auto" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);max-width:550px;" id="matchTabs" role="tablist">
+            <li class="nav-item flex-fill text-center" role="presentation">
+                <button class="nav-link w-100 active fw-semibold py-2.5 px-3 rounded-3" id="mutual-tab" data-bs-toggle="tab" data-bs-target="#mutual" type="button" role="tab" aria-controls="mutual" aria-selected="true" style="transition:all .3s ease;">
+                    <i class="bi bi-heart-fill me-1" style="color:#ff6b8a;"></i> Mutual Matches ({{ matches_data|length }})
+                </button>
+            </li>
+            <li class="nav-item flex-fill text-center" role="presentation">
+                <button class="nav-link w-100 fw-semibold py-2.5 px-3 rounded-3" id="liked-tab" data-bs-toggle="tab" data-bs-target="#liked" type="button" role="tab" aria-controls="liked" aria-selected="false" style="transition:all .3s ease;">
+                    <i class="bi bi-hand-thumbs-up-fill me-1" style="color:#6c5ce7;"></i> Liked ({{ liked_users|length }})
+                </button>
+            </li>
+            <li class="nav-item flex-fill text-center" role="presentation">
+                <button class="nav-link w-100 fw-semibold py-2.5 px-3 rounded-3" id="admirers-tab" data-bs-toggle="tab" data-bs-target="#admirers" type="button" role="tab" aria-controls="admirers" aria-selected="false" style="transition:all .3s ease;">
+                    <i class="bi bi-star-fill me-1" style="color:#ffd166;"></i> Admirers ({{ admirers|length }})
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Contents -->
+        <div class="tab-content" id="matchTabsContent">
+            
+            <!-- ════════ TAB 1: MUTUAL MATCHES ════════ -->
+            <div class="tab-pane fade show active" id="mutual" role="tabpanel" aria-labelledby="mutual-tab">
+                {% if matches_data %}
+                <div class="row g-4">
+                    {% for item in matches_data %}
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 rounded-4 overflow-hidden shadow-sm" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)!important;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-6px)';this.style.borderColor='rgba(255,107,138,.3)!important';" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,.07)!important';">
+                            <!-- Image / Header -->
+                            <div class="position-relative" style="height:220px;background:#16213e;">
+                                {% if item.profile and item.profile.profile_pic %}
+                                <img src="{{ item.profile.profile_pic.url }}" alt="{{ item.user.username }}" class="w-100 h-100" style="object-fit:cover;">
+                                {% else %}
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:3.5rem;font-weight:700;color:#fff;">
+                                    {{ item.user.first_name|default:item.user.username|make_list|first|upper }}
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Compatibility Badge -->
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="badge rounded-pill px-3 py-2 shadow" style="background:rgba(26,26,46,.85);backdrop-filter:blur(10px);color:#ff6b8a;border:1px solid rgba(255,107,138,.3);font-size:.85rem;font-weight:600;">
+                                        <i class="bi bi-lightning-charge-fill me-1" style="color:#ff6b8a;"></i> {{ item.compatibility }}% Match
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="card-body p-4 d-flex flex-column">
+                                <h5 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;color:#fff;">
+                                    {{ item.user.first_name|default:item.user.username }} {% if item.user.last_name %}{{ item.user.last_name }}{% endif %}
+                                </h5>
+                                
+                                <p class="text-muted small mb-2">
+                                    {% if item.profile and item.profile.city %}
+                                        <i class="bi bi-geo-alt-fill me-1" style="color:#ff6b8a;"></i>{{ item.profile.city }}
+                                    {% endif %}
+                                    {% if item.profile and item.profile.age %}
+                                        • {{ item.profile.age }} yrs
+                                    {% endif %}
+                                </p>
+
+                                {% if item.profile and item.profile.bio %}
+                                <p class="text-light small opacity-75 mb-3 flex-grow-1" style="line-height:1.5;">
+                                    {{ item.profile.bio|truncatechars:90 }}
+                                </p>
+                                {% else %}
+                                <p class="text-muted small fst-italic mb-3 flex-grow-1">No bio added yet.</p>
+                                {% endif %}
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex gap-2 mt-auto">
+                                    <a href="{% url 'conversation' item.match.id %}" class="btn btn-sm flex-fill rounded-pill py-2 fw-semibold text-white shadow-sm" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                                        <i class="bi bi-chat-heart-fill me-1"></i> Chat
+                                    </a>
+                                    <a href="{% url 'profile_detail' item.user.pk %}" class="btn btn-outline-light btn-sm rounded-pill py-2 px-3 fw-semibold" style="border-color:rgba(255,255,255,.2);" title="View Profile">
+                                        <i class="bi bi-person-fill"></i>
+                                    </a>
+                                    <a href="{% url 'like_user' item.user.pk %}" class="btn btn-sm px-3 rounded-pill py-2" style="background:rgba(220,53,69,.15);color:#ff6b7a;border:1px solid rgba(220,53,69,.3);" title="Unlike">
+                                        <i class="bi bi-heartbreak-fill"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5 px-4 rounded-4" style="background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.08);max-width:550px;margin:0 auto;">
+                    <i class="bi bi-heart-break" style="font-size:3rem;color:rgba(255,255,255,.2);"></i>
+                    <h5 class="fw-bold mt-3 mb-2" style="color:#fff;">No Mutual Matches Yet</h5>
+                    <p class="text-muted small mb-4">Browse member profiles and like the people you connect with to find mutual matches!</p>
+                    <a href="{% url 'profile_list' %}" class="btn px-4 py-2.5 fw-semibold text-white rounded-pill shadow" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                        <i class="bi bi-people-fill me-1"></i> Browse Profiles
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ════════ TAB 2: LIKED PROFILES ════════ -->
+            <div class="tab-pane fade" id="liked" role="tabpanel" aria-labelledby="liked-tab">
+                {% if liked_users %}
+                <div class="row g-4">
+                    {% for user_obj in liked_users %}
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 rounded-4 overflow-hidden shadow-sm" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)!important;">
+                            <div class="card-body p-4 d-flex align-items-center gap-3">
+                                {% if user_obj.profile and user_obj.profile.profile_pic %}
+                                <img src="{{ user_obj.profile.profile_pic.url }}" alt="{{ user_obj.username }}" class="rounded-circle shadow" style="width:60px;height:60px;object-fit:cover;">
+                                {% else %}
+                                <div class="rounded-circle shadow d-flex align-items-center justify-content-center" style="width:60px;height:60px;background:linear-gradient(135deg,#6c5ce7,#8b7cf7);font-size:1.5rem;font-weight:700;color:#fff;">
+                                    {{ user_obj.first_name|default:user_obj.username|make_list|first|upper }}
+                                </div>
+                                {% endif %}
+
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <h6 class="fw-bold mb-1 text-truncate" style="color:#fff;">{{ user_obj.first_name|default:user_obj.username }}</h6>
+                                    <p class="text-muted small mb-0 text-truncate">
+                                        {% if user_obj.profile and user_obj.profile.city %}{{ user_obj.profile.city }}{% else %}Member{% endif %}
+                                    </p>
+                                </div>
+
+                                <a href="{% url 'profile_detail' user_obj.pk %}" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5 px-4 rounded-4" style="background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.08);max-width:550px;margin:0 auto;">
+                    <i class="bi bi-hand-thumbs-up" style="font-size:3rem;color:rgba(255,255,255,.2);"></i>
+                    <h5 class="fw-bold mt-3 mb-2" style="color:#fff;">You haven't liked anyone yet</h5>
+                    <p class="text-muted small mb-4">Start exploring members and tap the heart icon on profiles you like!</p>
+                    <a href="{% url 'profile_list' %}" class="btn px-4 py-2.5 fw-semibold text-white rounded-pill shadow" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                        <i class="bi bi-search me-1"></i> Discover Profiles
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ════════ TAB 3: ADMIRERS ════════ -->
+            <div class="tab-pane fade" id="admirers" role="tabpanel" aria-labelledby="admirers-tab">
+                {% if admirers %}
+                <div class="row g-4">
+                    {% for user_obj in admirers %}
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 rounded-4 overflow-hidden shadow-sm" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,107,138,.2)!important;">
+                            <div class="card-body p-4 d-flex align-items-center gap-3">
+                                {% if user_obj.profile and user_obj.profile.profile_pic %}
+                                <img src="{{ user_obj.profile.profile_pic.url }}" alt="{{ user_obj.username }}" class="rounded-circle shadow" style="width:60px;height:60px;object-fit:cover;">
+                                {% else %}
+                                <div class="rounded-circle shadow d-flex align-items-center justify-content-center" style="width:60px;height:60px;background:linear-gradient(135deg,#ff6b8a,#ee5a6f);font-size:1.5rem;font-weight:700;color:#fff;">
+                                    {{ user_obj.first_name|default:user_obj.username|make_list|first|upper }}
+                                </div>
+                                {% endif %}
+
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <h6 class="fw-bold mb-1 text-truncate" style="color:#fff;">{{ user_obj.first_name|default:user_obj.username }}</h6>
+                                    <p class="text-muted small mb-0 text-truncate">Liked your profile!</p>
+                                </div>
+
+                                <a href="{% url 'like_user' user_obj.pk %}" class="btn btn-sm text-white rounded-pill px-3" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                                    <i class="bi bi-heart-fill me-1"></i> Like Back
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5 px-4 rounded-4" style="background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.08);max-width:550px;margin:0 auto;">
+                    <i class="bi bi-star" style="font-size:3rem;color:rgba(255,255,255,.2);"></i>
+                    <h5 class="fw-bold mt-3 mb-2" style="color:#fff;">No New Admirers</h5>
+                    <p class="text-muted small mb-4">Complete your bio and profile photo to attract more admirers!</p>
+                    <a href="{% url 'profile_edit' %}" class="btn px-4 py-2.5 fw-semibold text-white rounded-pill shadow" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                        <i class="bi bi-pencil-square me-1"></i> Enhance Profile
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+</section>
+{% endblock %}

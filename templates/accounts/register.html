@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Account — LoveMatch{% endblock %}
+
+{% block content %}
+<section class="py-5" style="min-height:85vh;display:flex;align-items:center;background:#1a1a2e;">
+    <!-- Background Accents -->
+    <div class="position-fixed" style="width:400px;height:400px;background:radial-gradient(circle,rgba(255,107,138,.08) 0%,transparent 70%);top:10%;right:-100px;border-radius:50%;pointer-events:none;"></div>
+    <div class="position-fixed" style="width:350px;height:350px;background:radial-gradient(circle,rgba(108,92,231,.08) 0%,transparent 70%);bottom:5%;left:-80px;border-radius:50%;pointer-events:none;"></div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 col-xl-5">
+
+                <!-- Card -->
+                <div class="position-relative" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;">
+                    <!-- Gradient Top Bar -->
+                    <div style="height:4px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);"></div>
+
+                    <div class="p-4 p-md-5">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <div class="mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(108,92,231,.15));border-radius:18px;">
+                                <i class="bi bi-heart-fill" style="font-size:1.8rem;color:#ff6b8a;"></i>
+                            </div>
+                            <h2 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;">Create Account</h2>
+                            <p class="text-muted mb-0">Begin your journey to finding love</p>
+                        </div>
+
+                        <!-- Errors Block -->
+                        {% if form.errors %}
+                        <div class="alert py-2 px-3 mb-3" style="background:rgba(220,53,69,.12);border:1px solid rgba(220,53,69,.25);border-radius:10px;color:#ff6b7a;font-size:.9rem;">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Please fix the errors below:
+                            <ul class="mb-0 ps-3 mt-1">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- Form -->
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+
+                            <!-- Username -->
+                            <div class="mb-3">
+                                <label for="id_username" class="form-label small fw-semibold" style="color:rgba(255,255,255,.8);">
+                                    <i class="bi bi-person me-1" style="color:#ff6b8a;"></i>Username
+                                </label>
+                                <input type="text" name="username" id="id_username"
+                                       class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                                       value="{{ form.username.value|default:'' }}"
+                                       placeholder="Choose a username"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;"
+                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.12)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                {% for error in form.username.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;"><i class="bi bi-x-circle-fill me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Name Fields Row -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_first_name" class="form-label small fw-semibold" style="color:rgba(255,255,255,.8);">First Name</label>
+                                    <input type="text" name="first_name" id="id_first_name" class="form-control" value="{{ form.first_name.value|default:'' }}" placeholder="First name" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_last_name" class="form-label small fw-semibold" style="color:rgba(255,255,255,.8);">Last Name</label>
+                                    <input type="text" name="last_name" id="id_last_name" class="form-control" value="{{ form.last_name.value|default:'' }}" placeholder="Last name" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;">
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label small fw-semibold" style="color:rgba(255,255,255,.8);">
+                                    <i class="bi bi-envelope me-1" style="color:#6c5ce7;"></i>Email
+                                </label>
+                                <input type="email" name="email" id="id_email"
+                                       class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                       value="{{ form.email.value|default:'' }}"
+                                       placeholder="your@email.com"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;"
+                                       onfocus="this.style.borderColor='#6c5ce7';this.style.boxShadow='0 0 0 3px rgba(108,92,231,.12)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                {% for error in form.email.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;"><i class="bi bi-x-circle-fill me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Password 1 -->
+                            <div class="mb-3">
+                                <label for="id_password1" class="form-label small fw-semibold" style="color:rgba(255,255,255,.8);">
+                                    <i class="bi bi-lock me-1" style="color:#ff6b8a;"></i>Password
+                                </label>
+                                <input type="password" name="password1" id="id_password1"
+                                       class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                                       placeholder="Create a strong password"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;"
+                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.12)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                {% for error in form.password1.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;"><i class="bi bi-x-circle-fill me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Password 2 -->
+                            <div class="mb-4">
+                                <label for="id_password2" class="form-label small fw-semibold" style="color:rgba(255,255,255,.8);">
+                                    <i class="bi bi-lock-fill me-1" style="color:#6c5ce7;"></i>Confirm Password
+                                </label>
+                                <input type="password" name="password2" id="id_password2"
+                                       class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                                       placeholder="Repeat your password"
+                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.7rem 1rem;"
+                                       onfocus="this.style.borderColor='#6c5ce7';this.style.boxShadow='0 0 0 3px rgba(108,92,231,.12)'"
+                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
+                                {% for error in form.password2.errors %}
+                                    <div class="small mt-1" style="color:#ff6b7a;"><i class="bi bi-x-circle-fill me-1"></i>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Submit -->
+                            <button type="submit" class="btn w-100 py-3 fw-semibold text-white shadow" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:12px;font-size:1.05rem;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,107,138,.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(0,0,0,.2)'">
+                                <i class="bi bi-heart-fill me-2"></i>Create Account
+                            </button>
+                        </form>
+
+                        <!-- Footer Link -->
+                        <div class="text-center mt-4 pt-3" style="border-top:1px solid rgba(255,255,255,.06);">
+                            <p class="text-muted mb-0">
+                                Already have an account?
+                                <a href="{% url 'login' %}" class="fw-semibold text-decoration-none" style="color:#ff6b8a;">Sign In <i class="bi bi-arrow-right"></i></a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

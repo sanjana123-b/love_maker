@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard — LoveMatch{% endblock %}
+
+{% block content %}
+<section class="py-4 py-md-5" style="min-height:85vh;background:#1a1a2e;">
+    <div class="container">
+
+        <!-- ═══════════════════ WELCOME BANNER ═══════════════════ -->
+        <div class="position-relative overflow-hidden mb-4" style="background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(108,92,231,.15));border:1px solid rgba(255,107,138,.12);border-radius:16px;">
+            <!-- Glow -->
+            <div class="position-absolute" style="width:250px;height:250px;background:radial-gradient(circle,rgba(255,107,138,.12),transparent 70%);top:-80px;right:-40px;border-radius:50%;"></div>
+            <div class="p-4 p-md-5 position-relative" style="z-index:2;">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <!-- Avatar -->
+                    {% if profile.profile_pic %}
+                    <img src="{{ profile.profile_pic.url }}" alt="{{ user.first_name }}" class="rounded-circle shadow" style="width:72px;height:72px;object-fit:cover;border:3px solid rgba(255,107,138,.3);">
+                    {% else %}
+                    <div class="d-flex align-items-center justify-content-center rounded-circle shadow" style="width:72px;height:72px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:1.8rem;font-weight:700;border:3px solid rgba(255,107,138,.3);">
+                        {{ user.first_name|default:user.username|make_list|first|upper }}
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h2 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;">
+                            Welcome back, <span style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">{{ user.first_name|default:user.username }}</span>! 💕
+                        </h2>
+                        <p class="text-muted mb-0">Your love journey continues — let's find your perfect match.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════ PROFILE COMPLETION PROMPT ═══════════════════ -->
+        {% if not profile.bio or not profile.birth_date %}
+        <div class="mb-4 p-4" style="background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.2);border-radius:16px;">
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:rgba(255,193,7,.15);border-radius:14px;">
+                    <i class="bi bi-exclamation-circle-fill" style="font-size:1.4rem;color:#ffd56b;"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="fw-bold mb-1" style="color:#ffd56b;">Complete Your Profile</h6>
+                    <p class="text-muted small mb-0">
+                        Add your {% if not profile.bio %}bio{% endif %}{% if not profile.bio and not profile.birth_date %} and {% endif %}{% if not profile.birth_date %}birth date{% endif %} to get better matches and show up in search results.
+                    </p>
+                </div>
+                <a href="{% url 'profile_edit' %}" class="btn btn-sm fw-semibold px-4 py-2" style="background:rgba(255,193,7,.2);color:#ffd56b;border:1px solid rgba(255,193,7,.3);border-radius:50px;transition:all .3s ease;" onmouseover="this.style.background='rgba(255,193,7,.3)'" onmouseout="this.style.background='rgba(255,193,7,.2)'">
+                    <i class="bi bi-pencil-square me-1"></i>Complete Now
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ═══════════════════ STATS CARDS ═══════════════════ -->
+        <div class="row g-3 g-lg-4 mb-4">
+            <!-- Total Members -->
+            <div class="col-md-4">
+                <div class="p-4 h-100" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;transition:all .3s ease;" onmouseover="this.style.borderColor='rgba(255,107,138,.2)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)';this.style.transform='translateY(0)'">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center" style="width:52px;height:52px;background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(238,90,111,.15));border-radius:14px;">
+                            <i class="bi bi-people-fill" style="font-size:1.4rem;color:#ff6b8a;"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-3" style="color:#ff6b8a;font-family:'Playfair Display',serif;">{{ total_profiles }}</div>
+                            <div class="text-muted small">Total Members</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Profile Views -->
+            <div class="col-md-4">
+                <div class="p-4 h-100" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;transition:all .3s ease;" onmouseover="this.style.borderColor='rgba(108,92,231,.2)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)';this.style.transform='translateY(0)'">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center" style="width:52px;height:52px;background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(140,122,255,.15));border-radius:14px;">
+                            <i class="bi bi-eye-fill" style="font-size:1.4rem;color:#6c5ce7;"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-3" style="color:#6c5ce7;font-family:'Playfair Display',serif;">—</div>
+                            <div class="text-muted small">Profile Views <span class="badge rounded-pill" style="background:rgba(108,92,231,.15);color:#6c5ce7;font-size:.65rem;">Coming soon</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Matches -->
+            <div class="col-md-4">
+                <a href="{% url 'matches' %}" class="text-decoration-none">
+                    <div class="p-4 h-100" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;transition:all .3s ease;" onmouseover="this.style.borderColor='rgba(238,90,111,.2)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)';this.style.transform='translateY(0)'">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center justify-content-center" style="width:52px;height:52px;background:linear-gradient(135deg,rgba(238,90,111,.15),rgba(255,107,138,.15));border-radius:14px;">
+                                <i class="bi bi-hearts" style="font-size:1.4rem;color:#ee5a6f;"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold fs-3" style="color:#ee5a6f;font-family:'Playfair Display',serif;">{{ matches_count|default:0 }}</div>
+                                <div class="text-muted small">Matches</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-3 g-lg-4">
+            <!-- ═══════════════════ QUICK ACTIONS ═══════════════════ -->
+            <div class="col-lg-5">
+                <div class="p-4 h-100" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
+                    <h5 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;">
+                        <i class="bi bi-lightning-fill me-2" style="color:#ff6b8a;"></i>Quick Actions
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <!-- Edit Profile -->
+                        <a href="{% url 'profile_edit' %}" class="btn text-start d-flex align-items-center gap-3 py-3 px-3" style="background:rgba(255,107,138,.06);border:1px solid rgba(255,107,138,.12);border-radius:12px;color:#fff;transition:all .3s ease;" onmouseover="this.style.background='rgba(255,107,138,.12)';this.style.transform='translateX(4px)'" onmouseout="this.style.background='rgba(255,107,138,.06)';this.style.transform='translateX(0)'">
+                            <div class="d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:linear-gradient(135deg,#ff6b8a,#ee5a6f);border-radius:10px;flex-shrink:0;">
+                                <i class="bi bi-person-gear"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small">Edit Profile</div>
+                                <div class="text-muted" style="font-size:.75rem;">Update your info & photos</div>
+                            </div>
+                            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                        </a>
+                        <!-- Browse Profiles -->
+                        <a href="{% url 'profile_list' %}" class="btn text-start d-flex align-items-center gap-3 py-3 px-3" style="background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.12);border-radius:12px;color:#fff;transition:all .3s ease;" onmouseover="this.style.background='rgba(108,92,231,.12)';this.style.transform='translateX(4px)'" onmouseout="this.style.background='rgba(108,92,231,.06)';this.style.transform='translateX(0)'">
+                            <div class="d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:linear-gradient(135deg,#6c5ce7,#8b7cf7);border-radius:10px;flex-shrink:0;">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small">Browse Profiles</div>
+                                <div class="text-muted" style="font-size:.75rem;">Discover people near you</div>
+                            </div>
+                            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                        </a>
+                        <!-- Take Quiz -->
+                        <a href="{% url 'quiz' %}" class="btn text-start d-flex align-items-center gap-3 py-3 px-3" style="background:rgba(255,193,7,.06);border:1px solid rgba(255,193,7,.12);border-radius:12px;color:#fff;transition:all .3s ease;" onmouseover="this.style.background='rgba(255,193,7,.12)';this.style.transform='translateX(4px)'" onmouseout="this.style.background='rgba(255,193,7,.06)';this.style.transform='translateX(0)'">
+                            <div class="d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:linear-gradient(135deg,#ffd166,#ffb703);border-radius:10px;flex-shrink:0;color:#1a1a2e;">
+                                <i class="bi bi-journal-check"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small">Compatibility Quiz</div>
+                                <div class="text-muted" style="font-size:.75rem;">Answer questions for matches</div>
+                            </div>
+                            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                        </a>
+                        <!-- View Matches -->
+                        <a href="{% url 'matches' %}" class="btn text-start d-flex align-items-center gap-3 py-3 px-3" style="background:rgba(238,90,111,.06);border:1px solid rgba(238,90,111,.12);border-radius:12px;color:#fff;transition:all .3s ease;" onmouseover="this.style.background='rgba(238,90,111,.12)';this.style.transform='translateX(4px)'" onmouseout="this.style.background='rgba(238,90,111,.06)';this.style.transform='translateX(0)'">
+                            <div class="d-flex align-items-center justify-content-center" style="width:40px;height:40px;background:linear-gradient(135deg,#ee5a6f,#ff6b8a);border-radius:10px;flex-shrink:0;">
+                                <i class="bi bi-hearts"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold small">View Matches</div>
+                                <div class="text-muted" style="font-size:.75rem;">See your mutual connections</div>
+                            </div>
+                            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════ PROFILE PREVIEW ═══════════════════ -->
+            <div class="col-lg-7">
+                <div class="p-4 h-100" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
+                    <h5 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;">
+                        <i class="bi bi-person-badge me-2" style="color:#6c5ce7;"></i>Your Profile Preview
+                    </h5>
+
+                    <div class="d-flex flex-column flex-sm-row gap-4">
+                        <!-- Photo -->
+                        <div class="text-center flex-shrink-0">
+                            {% if profile.profile_pic %}
+                            <img src="{{ profile.profile_pic.url }}" alt="{{ user.first_name }}" class="rounded-3 shadow" style="width:160px;height:200px;object-fit:cover;border:2px solid rgba(255,107,138,.2);">
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center rounded-3 shadow mx-auto" style="width:160px;height:200px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:3.5rem;font-weight:700;border:2px solid rgba(255,107,138,.2);">
+                                {{ user.first_name|default:user.username|make_list|first|upper }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Info -->
+                        <div class="flex-grow-1">
+                            <h4 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;">
+                                {{ user.first_name|default:user.username }} {{ user.last_name }}
+                            </h4>
+
+                            {% if profile.age and profile.city %}
+                            <p class="text-muted mb-3">
+                                <i class="bi bi-geo-alt-fill me-1" style="color:#ff6b8a;"></i>{{ profile.city }}
+                                <span class="mx-2 text-muted">•</span>
+                                {{ profile.age }} years old
+                            </p>
+                            {% elif profile.city %}
+                            <p class="text-muted mb-3"><i class="bi bi-geo-alt-fill me-1" style="color:#ff6b8a;"></i>{{ profile.city }}</p>
+                            {% elif profile.age %}
+                            <p class="text-muted mb-3">{{ profile.age }} years old</p>
+                            {% endif %}
+
+                            {% if profile.bio %}
+                            <p class="small mb-3" style="color:rgba(255,255,255,.7);line-height:1.6;">{{ profile.bio|truncatechars:150 }}</p>
+                            {% else %}
+                            <p class="small mb-3 fst-italic" style="color:rgba(255,255,255,.35);">No bio yet — tell the world about yourself!</p>
+                            {% endif %}
+
+                            {% if profile.interests_list %}
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                {% for interest in profile.interests_list %}
+                                <span class="badge rounded-pill px-3 py-1" style="background:rgba(108,92,231,.12);color:#a89aff;border:1px solid rgba(108,92,231,.2);font-weight:500;">{{ interest }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <a href="{% url 'profile_edit' %}" class="btn btn-sm px-4 py-2 fw-semibold" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);color:#fff;border:none;border-radius:50px;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                <i class="bi bi-pencil-square me-1"></i>Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

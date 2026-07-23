@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Profiles — LoveMatch{% endblock %}
+
+{% block content %}
+<section class="py-4 py-md-5" style="min-height:85vh;background:#1a1a2e;">
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="text-center mb-4">
+            <h2 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;">
+                <i class="bi bi-people-fill me-2" style="color:#ff6b8a;"></i>Browse
+                <span style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Profiles</span>
+            </h2>
+            <p class="text-muted mb-0">Discover amazing people waiting to meet you</p>
+        </div>
+
+        <!-- ═══════════════════ SEARCH / FILTER BAR ═══════════════════ -->
+        <div class="mb-4 p-3 p-md-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
+            <form method="GET" action="{% url 'profile_list' %}">
+                <div class="row g-2 g-md-3 align-items-end">
+                    <!-- Search -->
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="bi bi-search me-1" style="color:#ff6b8a;"></i>Search
+                        </label>
+                        <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search by name…"
+                               class="form-control"
+                               style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.6rem .9rem;font-size:.9rem;"
+                               onfocus="this.style.borderColor='#ff6b8a'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+                    </div>
+                    <!-- City -->
+                    <div class="col-6 col-lg-2">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="bi bi-geo-alt me-1" style="color:#6c5ce7;"></i>City
+                        </label>
+                        <select name="city" class="form-select"
+                                style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.6rem .9rem;font-size:.9rem;">
+                            <option value="" style="background:#1a1a2e;">All cities</option>
+                            {% for c in all_cities %}
+                            <option value="{{ c }}" {% if city == c %}selected{% endif %} style="background:#1a1a2e;">{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!-- Min Age -->
+                    <div class="col-3 col-lg-1">
+                        <label class="form-label small text-muted mb-1">Min Age</label>
+                        <input type="number" name="min_age" value="{{ min_age|default:'' }}" placeholder="18" min="18" max="99"
+                               class="form-control"
+                               style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.6rem .6rem;font-size:.9rem;text-align:center;">
+                    </div>
+                    <!-- Max Age -->
+                    <div class="col-3 col-lg-1">
+                        <label class="form-label small text-muted mb-1">Max Age</label>
+                        <input type="number" name="max_age" value="{{ max_age|default:'' }}" placeholder="99" min="18" max="99"
+                               class="form-control"
+                               style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.6rem .6rem;font-size:.9rem;text-align:center;">
+                    </div>
+                    <!-- Interest -->
+                    <div class="col-md-6 col-lg-3">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="bi bi-tag me-1" style="color:#ff6b8a;"></i>Interest
+                        </label>
+                        <input type="text" name="interest" value="{{ interest|default:'' }}" placeholder="e.g. Music"
+                               class="form-control"
+                               style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.6rem .9rem;font-size:.9rem;"
+                               onfocus="this.style.borderColor='#ff6b8a'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+                    </div>
+                    <!-- Search Button -->
+                    <div class="col-md-6 col-lg-2">
+                        <button type="submit" class="btn w-100 fw-semibold text-white" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:10px;padding:.6rem;font-size:.9rem;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(255,107,138,.25)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                            <i class="bi bi-search me-1"></i>Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- ═══════════════════ PROFILE CARDS GRID ═══════════════════ -->
+        {% if profiles %}
+        <div class="row g-3 g-lg-4">
+            {% for profile in profiles %}
+            <div class="col-sm-6 col-lg-4">
+                <div class="h-100 position-relative overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;transition:all .4s ease;cursor:pointer;" onmouseover="this.style.transform='translateY(-6px)';this.style.borderColor='rgba(255,107,138,.2)';this.style.boxShadow='0 15px 35px rgba(0,0,0,.25)'" onmouseout="this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,.06)';this.style.boxShadow='none'">
+
+                    <!-- Profile Image -->
+                    <div class="position-relative" style="height:260px;overflow:hidden;">
+                        {% if profile.profile_pic %}
+                        <img src="{{ profile.profile_pic.url }}" alt="{{ profile.user.first_name }}" class="w-100 h-100" style="object-fit:cover;">
+                        {% else %}
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                            <span style="font-size:4rem;font-weight:700;opacity:.8;">
+                                {{ profile.user.first_name|default:profile.user.username|make_list|first|upper }}
+                            </span>
+                        </div>
+                        {% endif %}
+                        <!-- Gradient Overlay -->
+                        <div class="position-absolute w-100" style="bottom:0;left:0;height:60%;background:linear-gradient(transparent,rgba(26,26,46,.9));"></div>
+                        <!-- Name on Image -->
+                        <div class="position-absolute w-100 px-3 pb-3" style="bottom:0;left:0;">
+                            <h5 class="fw-bold mb-0 text-white" style="font-family:'Playfair Display',serif;text-shadow:0 2px 8px rgba(0,0,0,.4);">
+                                {{ profile.user.first_name|default:profile.user.username }} {{ profile.user.last_name }}
+                            </h5>
+                            <p class="mb-0 small" style="color:rgba(255,255,255,.7);">
+                                {% if profile.age %}{{ profile.age }} years{% endif %}
+                                {% if profile.age and profile.city %} · {% endif %}
+                                {% if profile.city %}<i class="bi bi-geo-alt-fill" style="color:#ff6b8a;"></i> {{ profile.city }}{% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-3">
+                        <!-- Interests -->
+                        {% if profile.interests_list %}
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            {% for interest in profile.interests_list|slice:":4" %}
+                            <span class="badge rounded-pill px-2 py-1" style="background:rgba(108,92,231,.12);color:#a89aff;border:1px solid rgba(108,92,231,.18);font-size:.72rem;font-weight:500;">{{ interest }}</span>
+                            {% endfor %}
+                            {% if profile.interests_list|length > 4 %}
+                            <span class="badge rounded-pill px-2 py-1" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);font-size:.72rem;">+{{ profile.interests_list|length|add:"-4" }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- View Profile Button -->
+                        <a href="{% url 'profile_detail' profile.pk %}" class="btn w-100 fw-semibold text-white" style="background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(108,92,231,.15));border:1px solid rgba(255,107,138,.15);border-radius:10px;font-size:.88rem;transition:all .3s ease;" onmouseover="this.style.background='linear-gradient(135deg,#ff6b8a,#6c5ce7)';this.style.borderColor='transparent'" onmouseout="this.style.background='linear-gradient(135deg,rgba(255,107,138,.15),rgba(108,92,231,.15))';this.style.borderColor='rgba(255,107,138,.15)'">
+                            View Profile <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- ═══════════════════ EMPTY STATE ═══════════════════ -->
+        <div class="text-center py-5">
+            <div class="mx-auto mb-4 d-flex align-items-center justify-content-center" style="width:100px;height:100px;background:rgba(255,107,138,.08);border-radius:50%;">
+                <i class="bi bi-search-heart" style="font-size:2.8rem;color:#ff6b8a;opacity:.6;"></i>
+            </div>
+            <h4 class="fw-bold mb-2" style="font-family:'Playfair Display',serif;color:rgba(255,255,255,.6);">No profiles found</h4>
+            <p class="text-muted mb-4" style="max-width:400px;margin:0 auto;">Try adjusting your search filters or check back later — new people join every day!</p>
+            <a href="{% url 'profile_list' %}" class="btn px-4 py-2 fw-semibold text-white" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:50px;transition:all .3s ease;">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Clear Filters
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
