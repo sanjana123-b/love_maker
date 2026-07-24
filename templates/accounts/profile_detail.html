@@ -40,9 +40,12 @@
                             <i class="bi bi-pencil-square me-2"></i>Edit Profile
                         </a>
                     {% else %}
-                        <!-- Other profile: Like button -->
+                        <!-- Other profile: Like & Love Match buttons -->
                         <a href="{% url 'like_user' profile.user.pk %}" class="btn flex-grow-1 py-3 fw-semibold text-white shadow-sm d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#ff6b8a,#ee5a6f);border:none;border-radius:12px;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,107,138,.3)'" onmouseout="this.style.transform='translateY(0)'">
                             <i class="bi bi-heart-fill me-2"></i>Like Profile
+                        </a>
+                        <a href="{% url 'love_match' %}?target_user_id={{ profile.user.pk }}" class="btn py-3 px-4 fw-semibold text-white shadow-sm d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#6c5ce7,#8b7cf7);border:none;border-radius:12px;transition:all .3s ease;" title="Calculate Love Match Compatibility">
+                            <i class="bi bi-heart-pulse-fill me-1"></i> Love Match
                         </a>
                     {% endif %}
                 </div>

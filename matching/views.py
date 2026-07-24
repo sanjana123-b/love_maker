@@ -161,3 +161,160 @@ def matches_list_view(request):
         'admirers': admirers,
     }
     return render(request, 'matching/matches.html', context)
+
+
+import hashlib
+
+ZODIAC_ELEMENTS = {
+    'Aries': 'Fire', 'Leo': 'Fire', 'Sagittarius': 'Fire',
+    'Taurus': 'Earth', 'Virgo': 'Earth', 'Capricorn': 'Earth',
+    'Gemini': 'Air', 'Libra': 'Air', 'Aquarius': 'Air',
+    'Cancer': 'Water', 'Scorpio': 'Water', 'Pisces': 'Water',
+}
+
+ZODIAC_CHOICES = [
+    'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+    'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+]
+
+@login_required
+def love_match_view(request):
+    """Love Match calculator view with instant name/zodiac matching and profile matching."""
+    other_users = User.objects.exclude(pk=request.user.pk).select_related('profile')
+    
+    match_result = None
+    mode = request.GET.get('mode', 'names')
+    target_user_id = request.GET.get('target_user_id')
+
+    if target_user_id:
+        mode = 'profile'
+
+    if request.method == 'POST' or target_user_id:
+        post_mode = request.POST.get('mode')
+        if post_mode == 'profile' or mode == 'profile' or target_user_id:
+            user_id = request.POST.get('target_user') or target_user_id
+            if user_id:
+                target_user = get_object_or_404(User, pk=user_id)
+                score = calculate_compatibility(request.user, target_user)
+                
+                combined_seed = f"{min(request.user.id, target_user.id)}-{max(request.user.id, target_user.id)}"
+                h_val = int(hashlib.md5(combined_seed.encode()).hexdigest(), 16)
+                
+                romance_score = 65 + (h_val % 31)
+                fun_score = 70 + ((h_val >> 3) % 28)
+                comm_score = 60 + ((h_val >> 6) % 36)
+                trust_score = 72 + ((h_val >> 9) % 25)
+
+                name1 = request.user.first_name or request.user.username
+                name2 = target_user.first_name or target_user.username
+                zodiac1 = getattr(request.user.profile, 'zodiac_sign', 'Aries') if hasattr(request.user, 'profile') else 'Aries'
+                zodiac2 = getattr(target_user.profile, 'zodiac_sign', 'Leo') if hasattr(target_user, 'profile') else 'Leo'
+
+                match_result = generate_love_verdict(
+                    name1=name1,
+                    name2=name2,
+                    score=score,
+                    romance_score=romance_score,
+                    fun_score=fun_score,
+                    comm_score=comm_score,
+                    trust_score=trust_score,
+                    zodiac1=zodiac1,
+                    zodiac2=zodiac2,
+                    target_user=target_user
+                )
+
+        else:
+            name1 = request.POST.get('name1', '').strip()
+            name2 = request.POST.get('name2', '').strip()
+            zodiac1 = request.POST.get('zodiac1', 'Aries')
+            zodiac2 = request.POST.get('zodiac2', 'Leo')
+
+            if name1 and name2:
+                seed = f"{name1.lower()}-{name2.lower()}"
+                h_val = int(hashlib.md5(seed.encode()).hexdigest(), 16)
+                
+                score = 65 + (h_val % 34)
+                
+                elem1 = ZODIAC_ELEMENTS.get(zodiac1, 'Fire')
+                elem2 = ZODIAC_ELEMENTS.get(zodiac2, 'Fire')
+                if elem1 == elem2 or (elem1 in ['Fire', 'Air'] and elem2 in ['Fire', 'Air']) or (elem1 in ['Earth', 'Water'] and elem2 in ['Earth', 'Water']):
+                    score = min(99, score + 4)
+
+                romance_score = min(99, 60 + (h_val % 38))
+                fun_score = min(99, 65 + ((h_val >> 4) % 33))
+                comm_score = min(99, 58 + ((h_val >> 8) % 39))
+                trust_score = min(99, 70 + ((h_val >> 12) % 28))
+
+                match_result = generate_love_verdict(
+                    name1=name1,
+                    name2=name2,
+                    score=score,
+                    romance_score=romance_score,
+                    fun_score=fun_score,
+                    comm_score=comm_score,
+                    trust_score=trust_score,
+                    zodiac1=zodiac1,
+                    zodiac2=zodiac2
+                )
+
+    context = {
+        'other_users': other_users,
+        'zodiac_choices': ZODIAC_CHOICES,
+        'match_result': match_result,
+        'mode': mode,
+    }
+    return render(request, 'matching/love_match.html', context)
+
+
+def generate_love_verdict(name1, name2, score, romance_score, fun_score, comm_score, trust_score, zodiac1='Aries', zodiac2='Leo', target_user=None):
+    """Generate structured funny & romantic love match breakdown report."""
+    if score >= 90:
+        badge = "Match Made in Heaven 💖"
+        badge_color = "success"
+        verdict_title = f"{name1} & {name2} are Absolute Soulmates!"
+        quote = "The stars literally aligned for you two. Expect long talks, midnight snacks, and undeniable chemistry!"
+    elif score >= 80:
+        badge = "High Chemistry 🔥"
+        badge_color = "danger"
+        verdict_title = f"{name1} & {name2} Have Explosive Spark!"
+        quote = "Electric energy! You two balance each other perfectly — like coffee and late mornings."
+    elif score >= 70:
+        badge = "Harmonious Connection ✨"
+        badge_color = "info"
+        verdict_title = f"{name1} & {name2} Share Great Harmony!"
+        quote = "A solid, comforting bond with endless potential. Keep the laughs coming and the connection will thrive!"
+    else:
+        badge = "Playful Wildcard 😜"
+        badge_color = "warning"
+        verdict_title = f"{name1} & {name2} Have Unpredictable Charm!"
+        quote = "Opposites attract! Things will never be boring between you two. Expect fun surprises around every corner."
+
+    elem1 = ZODIAC_ELEMENTS.get(zodiac1, 'Fire')
+    elem2 = ZODIAC_ELEMENTS.get(zodiac2, 'Fire')
+    if elem1 == elem2:
+        zodiac_note = f"Both {zodiac1} and {zodiac2} belong to the {elem1} element — intense mutual understanding!"
+    elif (elem1 in ['Fire', 'Air'] and elem2 in ['Fire', 'Air']):
+        zodiac_note = f"{zodiac1} ({elem1}) fuels {zodiac2} ({elem2}) — inspiring and energetic vibe!"
+    elif (elem1 in ['Earth', 'Water'] and elem2 in ['Earth', 'Water']):
+        zodiac_note = f"{zodiac1} ({elem1}) & {zodiac2} ({elem2}) nurture each other — deep emotional stability!"
+    else:
+        zodiac_note = f"{zodiac1} ({elem1}) & {zodiac2} ({elem2}) bring dynamic contrast — exciting friction!"
+
+    return {
+        'name1': name1,
+        'name2': name2,
+        'score': score,
+        'romance_score': romance_score,
+        'fun_score': fun_score,
+        'comm_score': comm_score,
+        'trust_score': trust_score,
+        'badge': badge,
+        'badge_color': badge_color,
+        'verdict_title': verdict_title,
+        'quote': quote,
+        'zodiac1': zodiac1,
+        'zodiac2': zodiac2,
+        'zodiac_note': zodiac_note,
+        'target_user': target_user,
+    }
+

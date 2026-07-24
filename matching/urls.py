@@ -3,6 +3,8 @@ from . import views
 
 urlpatterns = [
     path('quiz/', views.quiz_view, name='quiz'),
+    path('love-match/', views.love_match_view, name='love_match'),
     path('like/<int:user_id>/', views.like_user_view, name='like_user'),
     path('matches/', views.matches_list_view, name='matches'),
 ]
+

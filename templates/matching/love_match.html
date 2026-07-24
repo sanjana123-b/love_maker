@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Love Match Calculator — LoveMatch{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 920px;">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <span class="badge px-3 py-2 rounded-pill mb-3" style="background:rgba(255,107,138,.15);color:#ff6b8a;border:1px solid rgba(255,107,138,.3);font-size:.9rem;">
+            <i class="bi bi-heart-pulse-fill me-1"></i> Interactive Compatibility Engine
+        </span>
+        <h1 class="display-4 fw-bold mb-3" style="font-family:'Playfair Display',serif;">
+            💘 <span style="background:linear-gradient(135deg,#ff6b8a,#ee5a6f,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Love Match</span> Calculator
+        </h1>
+        <p class="text-muted mx-auto" style="max-width: 580px; font-size:1.1rem;">
+            Test your compatibility with anyone! Enter names & zodiac signs for an instant fun match report, or pick a registered member profile.
+        </p>
+    </div>
+
+    <!-- Mode Selector Tabs -->
+    <div class="d-flex justify-content-center mb-5">
+        <div class="p-1 rounded-pill" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:inline-flex;">
+            <a href="?mode=names" class="btn btn-sm px-4 py-2 rounded-pill fw-semibold {% if mode != 'profile' %}text-white shadow{% else %}text-muted{% endif %}"
+               style="{% if mode != 'profile' %}background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;{% else %}background:transparent;border:none;{% endif %}transition:all .3s ease;">
+                <i class="bi bi-magic me-1"></i> Instant Name & Zodiac Match
+            </a>
+            <a href="?mode=profile" class="btn btn-sm px-4 py-2 rounded-pill fw-semibold {% if mode == 'profile' %}text-white shadow{% else %}text-muted{% endif %}"
+               style="{% if mode == 'profile' %}background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;{% else %}background:transparent;border:none;{% endif %}transition:all .3s ease;">
+                <i class="bi bi-person-heart me-1"></i> Member Profile Match
+            </a>
+        </div>
+    </div>
+
+    <!-- Calculator Card -->
+    <div class="card border-0 shadow-lg mb-5" style="background:rgba(26,26,46,.85);backdrop-filter:blur(16px);border:1px solid rgba(255,107,138,.2)!important;border-radius:24px;">
+        <div class="card-body p-4 p-md-5">
+
+            {% if mode != 'profile' %}
+            <!-- ── MODE 1: NAME & ZODIAC MATCH ── -->
+            <form method="POST" action="{% url 'love_match' %}?mode=names">
+                {% csrf_token %}
+                <input type="hidden" name="mode" value="names">
+                
+                <div class="row g-4 align-items-center">
+                    <!-- Person 1 -->
+                    <div class="col-md-5">
+                        <div class="p-3 rounded-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+                            <label class="form-label fw-bold text-light mb-2"><i class="bi bi-person-fill me-1" style="color:#ff6b8a;"></i> First Name</label>
+                            <input type="text" name="name1" class="form-control form-control-lg bg-dark text-white border-0 mb-3" placeholder="e.g. Alex" value="{{ request.POST.name1|default:request.user.first_name|default:request.user.username }}" required style="border-radius:12px;">
+                            
+                            <label class="form-label fw-semibold text-muted small mb-1"><i class="bi bi-stars me-1"></i> Zodiac Sign</label>
+                            <select name="zodiac1" class="form-select bg-dark text-white border-0" style="border-radius:12px;">
+                                {% for z in zodiac_choices %}
+                                <option value="{{ z }}" {% if request.POST.zodiac1 == z %}selected{% endif %}>{{ z }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Heart Divider -->
+                    <div class="col-md-2 text-center py-2">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle shadow" style="width:60px;height:60px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:1.8rem;color:#fff;animation:pulse 2s infinite;">
+                            💘
+                        </div>
+                    </div>
+
+                    <!-- Person 2 -->
+                    <div class="col-md-5">
+                        <div class="p-3 rounded-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+                            <label class="form-label fw-bold text-light mb-2"><i class="bi bi-person-heart me-1" style="color:#6c5ce7;"></i> Partner's Name</label>
+                            <input type="text" name="name2" class="form-control form-control-lg bg-dark text-white border-0 mb-3" placeholder="e.g. Taylor" value="{{ request.POST.name2|default:'' }}" required style="border-radius:12px;">
+                            
+                            <label class="form-label fw-semibold text-muted small mb-1"><i class="bi bi-stars me-1"></i> Zodiac Sign</label>
+                            <select name="zodiac2" class="form-select bg-dark text-white border-0" style="border-radius:12px;">
+                                {% for z in zodiac_choices %}
+                                <option value="{{ z }}" {% if request.POST.zodiac2 == z or z == 'Leo' %}selected{% endif %}>{{ z }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-lg px-5 py-3 fw-bold text-white shadow-lg" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:50px;font-size:1.1rem;transition:all .3s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                        <i class="bi bi-heart-fill me-2"></i> Calculate Love Match ⚡
+                    </button>
+                </div>
+            </form>
+
+            {% else %}
+            <!-- ── MODE 2: MEMBER PROFILE MATCH ── -->
+            <form method="POST" action="{% url 'love_match' %}?mode=profile">
+                {% csrf_token %}
+                <input type="hidden" name="mode" value="profile">
+                
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-md-8 text-center">
+                        <label class="form-label fw-bold fs-5 text-light mb-3">
+                            <i class="bi bi-people-fill me-2" style="color:#ff6b8a;"></i> Select a LoveMatch Member to Test Compatibility
+                        </label>
+                        <select name="target_user" class="form-select form-select-lg bg-dark text-white border-0 mb-4" required style="border-radius:14px;padding:.9rem 1.2rem;">
+                            <option value="" disabled selected>-- Choose a profile --</option>
+                            {% for u in other_users %}
+                            <option value="{{ u.id }}" {% if request.POST.target_user == u.id|stringformat:"i" or request.GET.target_user_id == u.id|stringformat:"i" %}selected{% endif %}>
+                                {{ u.first_name|default:u.username }} (@{{ u.username }})
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="submit" class="btn btn-lg px-5 py-3 fw-bold text-white shadow-lg" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:50px;font-size:1.1rem;transition:all .3s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                            <i class="bi bi-hearts me-2"></i> Test Profile Match 💘
+                        </button>
+                    </div>
+                </div>
+            </form>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- RESULTS DISPLAY SECTION -->
+    {% if match_result %}
+    <div class="card border-0 shadow-lg position-relative overflow-hidden mb-5" style="background:linear-gradient(145deg,#1a1a2e,#16213e);border:1px solid rgba(255,107,138,.3)!important;border-radius:24px;">
+        <div class="card-body p-4 p-md-5">
+            <!-- Result Header -->
+            <div class="text-center mb-4">
+                <span class="badge px-4 py-2 rounded-pill fs-6 mb-3 bg-{{ match_result.badge_color }} text-white shadow-sm">
+                    {{ match_result.badge }}
+                </span>
+                <h2 class="display-6 fw-bold mb-2" style="font-family:'Playfair Display',serif;color:#fff;">
+                    {{ match_result.verdict_title }}
+                </h2>
+                <p class="lead text-muted mx-auto" style="max-width: 600px; font-size:1.1rem; color:rgba(255,255,255,.8)!important;">
+                    "{{ match_result.quote }}"
+                </p>
+            </div>
+
+            <!-- Love Meter Gauge -->
+            <div class="row align-items-center justify-content-center my-4">
+                <div class="col-md-6 text-center">
+                    <div class="position-relative d-inline-flex align-items-center justify-content-center p-4">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center shadow-lg"
+                             style="width:180px;height:180px;background:radial-gradient(circle,rgba(255,107,138,.2),rgba(108,92,231,.1));border:6px solid #ff6b8a;box-shadow:0 0 30px rgba(255,107,138,.4)!important;">
+                            <div class="text-center">
+                                <span class="display-3 fw-bold" style="background:linear-gradient(135deg,#ff6b8a,#ffffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                                    {{ match_result.score }}%
+                                </span>
+                                <div class="small text-muted fw-semibold">COMPATIBILITY</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zodiac Compatibility Note -->
+            <div class="p-3 mb-4 rounded-4 text-center" style="background:rgba(108,92,231,.12);border:1px solid rgba(108,92,231,.25);">
+                <i class="bi bi-moon-stars-fill me-2" style="color:#6c5ce7;"></i>
+                <span class="fw-semibold text-light">{{ match_result.zodiac_note }}</span>
+            </div>
+
+            <!-- Breakdown Metrics Grid -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 rounded-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+                        <div class="small text-muted mb-1">🔥 Romance</div>
+                        <div class="fw-bold fs-4" style="color:#ff6b8a;">{{ match_result.romance_score }}%</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 rounded-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+                        <div class="small text-muted mb-1">🎉 Fun & Humor</div>
+                        <div class="fw-bold fs-4" style="color:#6c5ce7;">{{ match_result.fun_score }}%</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 rounded-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+                        <div class="small text-muted mb-1">💬 Communication</div>
+                        <div class="fw-bold fs-4" style="color:#0dcaf0;">{{ match_result.comm_score }}%</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 rounded-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+                        <div class="small text-muted mb-1">🤝 Trust Index</div>
+                        <div class="fw-bold fs-4" style="color:#20c997;">{{ match_result.trust_score }}%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="text-center pt-2 d-flex justify-content-center gap-3 flex-wrap">
+                {% if match_result.target_user %}
+                <a href="{% url 'profile_detail' pk=match_result.target_user.pk %}" class="btn btn-outline-light rounded-pill px-4">
+                    <i class="bi bi-person-bounding-box me-1"></i> View {{ match_result.name2 }}'s Profile
+                </a>
+                <a href="{% url 'like_user' user_id=match_result.target_user.pk %}" class="btn text-white rounded-pill px-4" style="background:linear-gradient(135deg,#ff6b8a,#ee5a6f);">
+                    <i class="bi bi-heart-fill me-1"></i> Send Like 💕
+                </a>
+                {% else %}
+                <a href="{% url 'profile_list' %}" class="btn text-white rounded-pill px-4" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                    <i class="bi bi-people-fill me-1"></i> Browse Real Members
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<style>
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+</style>
+{% endblock %}
