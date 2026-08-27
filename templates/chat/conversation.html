@@ -3,6 +3,47 @@
 
 {% block title %}Chat with {{ other_user.first_name|default:other_user.username }} — LoveMatch{% endblock %}
 
+{% block extra_css %}
+<style>
+    .chat-bubble-sent {
+        background: linear-gradient(135deg, #ff6b8a, #6c5ce7);
+        color: #fff;
+        border-bottom-right-radius: 4px !important;
+    }
+    .chat-bubble-received {
+        background: rgba(255, 255, 255, 0.08);
+        color: #f1f2f6;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom-left-radius: 4px !important;
+    }
+    .typing-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #ff6b8a;
+        animation: typingAnimation 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typingAnimation {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1.0); }
+    }
+    .icebreaker-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: rgba(255, 107, 138, 0.08);
+        border: 1px solid rgba(255, 107, 138, 0.2);
+    }
+    .icebreaker-card:hover {
+        background: rgba(255, 107, 138, 0.18);
+        transform: translateY(-2px);
+        border-color: #ff6b8a;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="py-3 py-md-4" style="min-height:88vh;background:#1a1a2e;display:flex;align-items:center;">
     <div class="container">
@@ -19,47 +60,151 @@
                             </a>
 
                             <div class="d-flex align-items-center gap-3">
-                                {% if other_profile and other_profile.profile_pic %}
-                                <img src="{{ other_profile.profile_pic.url }}" alt="{{ other_user.username }}" class="rounded-circle shadow" style="width:48px;height:48px;object-fit:cover;">
-                                {% else %}
-                                <div class="rounded-circle shadow d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:1.2rem;font-weight:700;color:#fff;">
-                                    {{ other_user.first_name|default:other_user.username|make_list|first|upper }}
+                                <div class="position-relative">
+                                    {% if other_profile and other_profile.profile_pic %}
+                                    <img src="{{ other_profile.profile_pic.url }}" alt="{{ other_user.username }}" class="rounded-circle shadow" style="width:48px;height:48px;object-fit:cover;border:2px solid #ff6b8a;">
+                                    {% else %}
+                                    <div class="rounded-circle shadow d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:1.2rem;font-weight:700;color:#fff;border:2px solid #ff6b8a;">
+                                        {{ other_user.first_name|default:other_user.username|make_list|first|upper }}
+                                    </div>
+                                    {% endif %}
+                                    <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-dark rounded-circle" style="width:12px;height:12px;"></span>
                                 </div>
-                                {% endif %}
 
                                 <div>
                                     <h6 class="fw-bold mb-0 text-white" style="font-size:1.05rem;">
                                         {{ other_user.first_name|default:other_user.username }} {% if other_user.last_name %}{{ other_user.last_name }}{% endif %}
                                     </h6>
-                                    <span class="small text-success d-inline-flex align-items-center gap-1" style="font-size:.75rem;">
+                                    <span class="small text-success d-inline-flex align-items-center gap-1" style="font-size:.75rem;" id="onlineStatus">
                                         <i class="bi bi-circle-fill" style="font-size:.5rem;"></i> Active Match
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <a href="{% url 'profile_detail' other_user.pk %}" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1.5" style="font-size:.82rem;">
-                            View Profile
-                        </a>
+                        <!-- Top Right Actions -->
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1.5 fw-semibold d-none d-sm-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#dateModal" style="font-size:.82rem;">
+                                <i class="bi bi-calendar-heart-fill"></i> Propose Date
+                            </button>
+
+                            <a href="{% url 'profile_detail' other_user.pk %}" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1.5" style="font-size:.82rem;">
+                                Profile
+                            </a>
+
+                            <!-- Options Dropdown -->
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" style="width:36px;height:36px;border-color:rgba(255,255,255,.15);">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background:#1a1a2e;border:1px solid rgba(255,107,138,.2);">
+                                    <li>
+                                        <button class="dropdown-item text-warning" data-bs-toggle="modal" data-bs-target="#dateModal">
+                                            <i class="bi bi-calendar-heart me-2"></i>Propose a Date
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,.08);"></li>
+                                    <li>
+                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#unmatchModal">
+                                            <i class="bi bi-heartbreak me-2"></i>Unmatch
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#blockModal">
+                                            <i class="bi bi-slash-circle me-2"></i>Block User
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="dropdown-item text-warning" data-bs-toggle="modal" data-bs-target="#reportModal">
+                                            <i class="bi bi-flag me-2"></i>Report User
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ════════ DATE PROPOSALS BANNER (IF ANY) ════════ -->
+                    {% if date_proposals %}
+                    <div class="p-3" style="background:rgba(255,209,102,.08);border-bottom:1px solid rgba(255,209,102,.2);">
+                        {% for prop in date_proposals %}
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 {% if not forloop.first %}mt-2 pt-2 border-top border-secondary border-opacity-25{% endif %}">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fs-5">💌</span>
+                                <div>
+                                    <span class="small fw-bold text-white">{{ prop.proposed_by.first_name|default:prop.proposed_by.username }} proposed:</span>
+                                    <span class="small text-warning fw-semibold">"{{ prop.title }}"</span>
+                                    {% if prop.suggested_date %}<span class="small text-muted">on {{ prop.suggested_date|date:"M d, Y" }}</span>{% endif %}
+                                </div>
+                            </div>
+                            <div>
+                                {% if prop.status == 'pending' %}
+                                    {% if prop.proposed_by != user %}
+                                    <form method="POST" action="{% url 'respond_date_proposal' prop.id %}" class="d-inline-flex gap-1">
+                                        {% csrf_token %}
+                                        <button type="submit" name="action" value="accept" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-semibold" style="font-size:.78rem;">
+                                            <i class="bi bi-check-lg me-1"></i>Accept
+                                        </button>
+                                        <button type="submit" name="action" value="decline" class="btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1" style="font-size:.78rem;">
+                                            Decline
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <span class="badge rounded-pill bg-warning text-dark px-3 py-1">Pending Response</span>
+                                    {% endif %}
+                                {% elif prop.status == 'accepted' %}
+                                    <span class="badge rounded-pill bg-success px-3 py-1"><i class="bi bi-heart-fill me-1"></i>Date Confirmed!</span>
+                                {% else %}
+                                    <span class="badge rounded-pill bg-secondary px-3 py-1">Declined</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- ════════ AI SPARK ICEBREAKERS DRAWER ════════ -->
+                    <div class="p-3" id="icebreakersDrawer" style="background:rgba(26,26,46,.9);border-bottom:1px solid rgba(255,107,138,.15);">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="small fw-bold" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                                ✨ AI Spark Conversation Starters
+                            </span>
+                            <button type="button" class="btn btn-sm p-0 text-muted" id="btnRefreshIcebreakers" title="Generate New Icebreakers">
+                                <i class="bi bi-arrow-clockwise me-1"></i><span style="font-size:.75rem;">Refresh</span>
+                            </button>
+                        </div>
+                        
+                        <div class="row g-2" id="icebreakerList">
+                            {% for prompt in spark_icebreakers %}
+                            <div class="col-12 col-md-4">
+                                <div class="p-2.5 rounded-3 icebreaker-card text-light small fw-medium" onclick="insertIcebreaker(this.innerText)">
+                                    {{ prompt }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
 
                     <!-- ════════ CHAT MESSAGES BODY ════════ -->
-                    <div id="chatMessages" class="p-3 p-md-4 d-flex flex-column gap-3 overflow-y-auto" style="height:480px;background:rgba(20,20,35,.5);">
+                    <div id="chatMessages" class="p-3 p-md-4 d-flex flex-column gap-3 overflow-y-auto position-relative" style="height:460px;background:rgba(20,20,35,.5);">
                         
                         {% if message_list %}
                             {% for msg in message_list %}
                                 {% if msg.sender == user %}
                                 <!-- Sent Message (Right) -->
-                                <div class="d-flex flex-column align-items-end max-w-75 ms-auto">
-                                    <div class="p-3 rounded-4 shadow-sm text-white" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border-bottom-right-radius:4px!important;font-size:.92rem;line-height:1.5;">
+                                <div class="d-flex flex-column align-items-end max-w-75 ms-auto msg-row" id="msg-{{ msg.id }}">
+                                    <div class="p-3 rounded-4 shadow-sm chat-bubble-sent position-relative" style="font-size:.92rem;line-height:1.5;">
                                         {{ msg.content }}
                                     </div>
-                                    <span class="text-muted mt-1" style="font-size:.68rem;">{{ msg.timestamp|date:"h:i A" }}</span>
+                                    <div class="d-flex align-items-center gap-1 text-muted mt-1" style="font-size:.68rem;">
+                                        <span>{{ msg.timestamp|date:"h:i A" }}</span>
+                                        <i class="bi bi-check2-all text-info" title="Delivered"></i>
+                                    </div>
                                 </div>
                                 {% else %}
                                 <!-- Received Message (Left) -->
-                                <div class="d-flex flex-column align-items-start max-w-75 me-auto">
-                                    <div class="p-3 rounded-4 shadow-sm text-light" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.05);border-bottom-left-radius:4px!important;font-size:.92rem;line-height:1.5;">
+                                <div class="d-flex flex-column align-items-start max-w-75 me-auto msg-row" id="msg-{{ msg.id }}">
+                                    <div class="p-3 rounded-4 shadow-sm chat-bubble-received position-relative" style="font-size:.92rem;line-height:1.5;">
                                         {{ msg.content }}
                                     </div>
                                     <span class="text-muted mt-1" style="font-size:.68rem;">{{ msg.timestamp|date:"h:i A" }}</span>
@@ -68,31 +213,44 @@
                             {% endfor %}
                         {% else %}
                         <!-- Empty Chat Placeholder -->
-                        <div class="my-auto text-center py-4">
-                            <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;background:linear-gradient(135deg,rgba(255,107,138,.12),rgba(108,92,231,.12));border-radius:50%;">
+                        <div class="my-auto text-center py-4" id="emptyPlaceholder">
+                            <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;background:linear-gradient(135deg,rgba(255,107,138,.15),rgba(108,92,231,.15));border-radius:50%;">
                                 <i class="bi bi-chat-heart-fill" style="font-size:1.8rem;color:#ff6b8a;"></i>
                             </div>
                             <h6 class="fw-bold text-white mb-1">Break the Ice!</h6>
-                            <p class="text-muted small mb-0">Send your first message to {{ other_user.first_name|default:other_user.username }}.</p>
+                            <p class="text-muted small mb-0">Tap one of the AI spark questions above or send your first message.</p>
                         </div>
                         {% endif %}
+
+                        <!-- Real-time Typing Bubble Placeholder -->
+                        <div id="typingIndicator" class="d-none align-items-center gap-2 text-muted small p-2 rounded-3 me-auto" style="background:rgba(255,255,255,.05);border-radius:12px;font-size:.78rem;">
+                            <span>{{ other_user.first_name|default:other_user.username }} is typing</span>
+                            <div class="d-inline-flex gap-1 align-items-center">
+                                <span class="typing-dot"></span>
+                                <span class="typing-dot"></span>
+                                <span class="typing-dot"></span>
+                            </div>
+                        </div>
 
                     </div>
 
                     <!-- ════════ CHAT INPUT FOOTER ════════ -->
                     <div class="p-3 p-md-4" style="background:rgba(26,26,46,.95);border-top:1px solid rgba(255,255,255,.08);">
-                        <form method="POST" class="d-flex gap-2 align-items-center">
+                        <form id="chatForm" method="POST" class="d-flex gap-2 align-items-center">
                             {% csrf_token %}
-                            <input type="text" name="content" autocomplete="off" placeholder="Type a message..." required
+                            
+                            <button type="button" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" id="btnToggleIcebreakers" title="Toggle AI Icebreakers" style="width:40px;height:40px;border-color:rgba(255,255,255,.15);">
+                                <i class="bi bi-stars" style="color:#ff6b8a;"></i>
+                            </button>
+
+                            <input type="text" id="chatInput" name="content" autocomplete="off" placeholder="Type a message..." required
                                    class="form-control text-white border-0 py-2.5 px-3"
                                    style="background:rgba(255,255,255,.06);border-radius:24px;font-size:.95rem;"
                                    onfocus="this.style.boxShadow='0 0 0 2px rgba(255,107,138,.3)'"
                                    onblur="this.style.boxShadow='none'">
                             
-                            <button type="submit" class="btn text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow"
-                                    style="width:44px;height:44px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;transition:transform .2s ease;"
-                                    onmouseover="this.style.transform='scale(1.05)'"
-                                    onmouseout="this.style.transform='scale(1)'">
+                            <button type="submit" id="btnSend" class="btn text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow"
+                                    style="width:44px;height:44px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;transition:transform .2s ease;">
                                 <i class="bi bi-send-fill" style="font-size:1.1rem;"></i>
                             </button>
                         </form>
@@ -105,13 +263,274 @@
     </div>
 </section>
 
-<!-- Auto scroll to bottom script -->
+<!-- ════════ PROPOSE DATE MODAL ════════ -->
+<div class="modal fade" id="dateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-light" style="background:#1a1a2e;border:1px solid rgba(255,209,102,.3)!important;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" style="font-family:'Playfair Display',serif;">
+                    💌 <span style="background:linear-gradient(135deg,#ffd166,#ff6b8a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Propose a Date</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'propose_date' match.id %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Date Title / Activity</label>
+                        <input type="text" name="title" required placeholder="e.g. Sunset Boba Walk & Art Gallery" class="form-control bg-dark text-white border-0 py-2.5" style="border-radius:12px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Suggested Date</label>
+                        <input type="date" name="suggested_date" class="form-control bg-dark text-white border-0 py-2.5" style="border-radius:12px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Details / Note (Optional)</label>
+                        <textarea name="details" rows="3" placeholder="Add any details or favorite spot..." class="form-control bg-dark text-white border-0" style="border-radius:12px;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn text-white rounded-pill px-4 fw-bold" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                        Send Proposal 💖
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ════════ UNMATCH MODAL ════════ -->
+<div class="modal fade" id="unmatchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-light" style="background:#1a1a2e;border:1px solid rgba(220,53,69,.3)!important;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-heartbreak me-2"></i>Unmatch with {{ other_user.first_name|default:other_user.username }}?</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted mb-0">This will remove this conversation and prevent you from matching again. This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'unmatch_user' match.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Confirm Unmatch</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════ BLOCK MODAL ════════ -->
+<div class="modal fade" id="blockModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-light" style="background:#1a1a2e;border:1px solid rgba(220,53,69,.3)!important;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-slash-circle me-2"></i>Block {{ other_user.first_name|default:other_user.username }}?</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'block_user' other_user.pk %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-3">Blocked users cannot see your profile, send messages, or appear in your discovery deck.</p>
+                    <label class="form-label small fw-bold">Reason (Optional)</label>
+                    <input type="text" name="reason" placeholder="Reason for blocking..." class="form-control bg-dark text-white border-0 py-2.5" style="border-radius:12px;">
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Block Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ════════ REPORT MODAL ════════ -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-light" style="background:#1a1a2e;border:1px solid rgba(255,193,7,.3)!important;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-warning"><i class="bi bi-flag-fill me-2"></i>Report Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'report_user' other_user.pk %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Reason for Report</label>
+                        <select name="category" class="form-select bg-dark text-white border-0 py-2.5" style="border-radius:12px;" required>
+                            <option value="harassment">Harassment or Bullying</option>
+                            <option value="inappropriate_content">Inappropriate Photos or Bio</option>
+                            <option value="fake_profile">Fake Account or Impersonation</option>
+                            <option value="spam">Spam or Commercial Solicitation</option>
+                            <option value="other">Other Reason</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Details</label>
+                        <textarea name="description" rows="3" required placeholder="Please describe what happened..." class="form-control bg-dark text-white border-0" style="border-radius:12px;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark rounded-pill px-4 fw-bold">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const chatContainer = document.getElementById('chatMessages');
+    const matchId = "{{ match.id }}";
+    const currentUserId = {{ user.id }};
+    const chatContainer = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const chatForm = document.getElementById('chatForm');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const emptyPlaceholder = document.getElementById('emptyPlaceholder');
+
+    // Scroll to bottom helper
+    function scrollToBottom() {
         if (chatContainer) {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+    }
+    scrollToBottom();
+
+    // ── WebSocket Setup ──
+    const wsScheme = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsScheme}//${window.location.host}/ws/chat/${matchId}/`;
+    let chatSocket = null;
+    let typingTimeout = null;
+
+    function connectWebSocket() {
+        chatSocket = new WebSocket(wsUrl);
+
+        chatSocket.onopen = function() {
+            console.log('Connected to LoveMatch live chat WebSocket.');
+            // Send read receipt
+            chatSocket.send(JSON.stringify({ action: 'read_receipt' }));
+        };
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+
+            if (data.type === 'chat_message') {
+                if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
+
+                const isMe = (data.sender_id === currentUserId);
+                const bubbleClass = isMe ? 'chat-bubble-sent' : 'chat-bubble-received';
+                const alignClass = isMe ? 'align-items-end max-w-75 ms-auto' : 'align-items-start max-w-75 me-auto';
+                const checkIcon = isMe ? '<i class="bi bi-check2-all text-info ms-1" title="Delivered"></i>' : '';
+
+                const row = document.createElement('div');
+                row.className = `d-flex flex-column ${alignClass} msg-row`;
+                row.id = `msg-${data.message_id}`;
+                row.innerHTML = `
+                    <div class="p-3 rounded-4 shadow-sm ${bubbleClass} position-relative" style="font-size:.92rem;line-height:1.5;">
+                        ${escapeHtml(data.content)}
+                    </div>
+                    <div class="d-flex align-items-center text-muted mt-1" style="font-size:.68rem;">
+                        <span>${data.timestamp}</span>
+                        ${checkIcon}
+                    </div>
+                `;
+
+                // Insert before typing indicator
+                chatContainer.insertBefore(row, typingIndicator);
+                scrollToBottom();
+
+                if (!isMe) {
+                    chatSocket.send(JSON.stringify({ action: 'read_receipt' }));
+                }
+
+            } else if (data.type === 'typing_status') {
+                if (data.is_typing) {
+                    typingIndicator.classList.remove('d-none');
+                    typingIndicator.classList.add('d-flex');
+                    scrollToBottom();
+                } else {
+                    typingIndicator.classList.remove('d-flex');
+                    typingIndicator.classList.add('d-none');
+                }
+            }
+        };
+
+        chatSocket.onclose = function(e) {
+            console.log('Chat socket closed. Reconnecting in 3 seconds...');
+            setTimeout(connectWebSocket, 3000);
+        };
+    }
+
+    connectWebSocket();
+
+    // Form submit via WebSocket
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const content = chatInput.value.trim();
+        if (content && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({
+                action: 'chat_message',
+                content: content
+            }));
+            chatInput.value = '';
+            // Stop typing status
+            chatSocket.send(JSON.stringify({ action: 'typing_status', is_typing: false }));
+        } else if (content) {
+            // Standard form fallback
+            chatForm.submit();
+        }
     });
+
+    // Typing listener
+    chatInput.addEventListener('input', function() {
+        if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({ action: 'typing_status', is_typing: true }));
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                chatSocket.send(JSON.stringify({ action: 'typing_status', is_typing: false }));
+            }, 2000);
+        }
+    });
+
+    // Icebreaker Click to Insert
+    window.insertIcebreaker = function(text) {
+        chatInput.value = text.trim();
+        chatInput.focus();
+    };
+
+    // Toggle Icebreaker Drawer
+    document.getElementById('btnToggleIcebreakers')?.addEventListener('click', function() {
+        const drawer = document.getElementById('icebreakersDrawer');
+        drawer.classList.toggle('d-none');
+    });
+
+    // Refresh Icebreakers via AJAX
+    document.getElementById('btnRefreshIcebreakers')?.addEventListener('click', function() {
+        const list = document.getElementById('icebreakerList');
+        list.innerHTML = '<div class="col-12 text-center text-muted small py-2"><span class="spinner-border spinner-border-sm me-2"></span>Generating tailored icebreakers...</div>';
+
+        fetch(`/chat/api/icebreakers/${matchId}/`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.icebreakers) {
+                    list.innerHTML = '';
+                    data.icebreakers.forEach(p => {
+                        const col = document.createElement('div');
+                        col.className = 'col-12 col-md-4';
+                        col.innerHTML = `<div class="p-2.5 rounded-3 icebreaker-card text-light small fw-medium" onclick="insertIcebreaker(this.innerText)">${p}</div>`;
+                        list.appendChild(col);
+                    });
+                }
+            });
+    });
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
 </script>
 {% endblock %}
