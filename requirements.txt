@@ -1,2 +1,23 @@
+# Django & Core Web Framework
 Django>=5.0,<6.0
-Pillow>=10.0
+Pillow>=10.0.0
+django-environ>=0.11.2
+whitenoise>=6.6.0
+
+# Real-Time WebSockets & Async
+channels>=4.1.0
+daphne>=4.1.0
+channels-redis>=4.2.0
+
+# Production Server & Async Tasks
+gunicorn>=21.2.0
+redis>=5.0.0
+psycopg2-binary>=2.9.9
+
+# AI & Smart Features (Google Gemini API)
+google-genai>=1.0.0
+
+# Testing & Quality Assurance
+pytest>=8.0.0
+pytest-django>=4.8.0
+pytest-cov>=4.1.0
