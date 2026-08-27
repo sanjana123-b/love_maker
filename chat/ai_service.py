@@ -3,10 +3,11 @@ import random
 from django.conf import settings
 from matching.models import QuizAnswer, QuizQuestion
 
+
 def generate_spark_icebreakers(match, current_user):
     """
     Generate 3 tailored, engaging, contextual conversation starters for a match
-    using Google Gemini API or intelligent heuristic fallback based on shared hobbies and quiz answers.
+    using Google Gemini API (gemini-3.6-flash) or intelligent heuristic fallback based on shared hobbies and quiz answers.
     """
     other_user = match.get_other_user(current_user)
     u1_profile = getattr(current_user, 'profile', None)
@@ -22,10 +23,6 @@ def generate_spark_icebreakers(match, current_user):
     z1 = getattr(u1_profile, 'zodiac_sign', 'Aries')
     z2 = getattr(u2_profile, 'zodiac_sign', 'Leo')
 
-    # Get quiz answer topics
-    u1_ans = dict(QuizAnswer.objects.filter(user=current_user).values_list('question__category', 'selected_option'))
-    u2_ans = dict(QuizAnswer.objects.filter(user=other_user).values_list('question__category', 'selected_option'))
-
     # Check for Google Gemini API key
     api_key = getattr(settings, 'GEMINI_API_KEY', '') or os.environ.get('GEMINI_API_KEY', '')
     
@@ -36,27 +33,30 @@ def generate_spark_icebreakers(match, current_user):
             
             prompt = (
                 f"You are a charming, witty dating coach and icebreaker assistant for the dating app LoveMatch.\n"
-                f"User 1: {u1_name}, Zodiac: {z1}, Interests: {', '.join(u1_interests) if u1_interests else 'various'}.\n"
-                f"User 2: {u2_name}, Zodiac: {z2}, Interests: {', '.join(u2_interests) if u2_interests else 'various'}.\n"
-                f"Shared Interests: {', '.join(shared_interests) if shared_interests else 'general curiosity'}.\n"
+                f"Sender: {u1_name}, Zodiac: {z1}, Interests: {', '.join(u1_interests) if u1_interests else 'various'}.\n"
+                f"Recipient: {u2_name}, Zodiac: {z2}, Interests: {', '.join(u2_interests) if u2_interests else 'various'}.\n"
+                f"Shared Interests: {', '.join(shared_interests) if shared_interests else 'none specifically listed'}.\n"
                 f"Task: Generate exactly 3 fun, playful, non-cheesy, unique icebreaker questions for {u1_name} to send to {u2_name}.\n"
-                f"Format: Return ONLY a numbered list (1., 2., 3.) with one icebreaker per line, keeping each under 25 words."
+                f"Strict Format Requirement: Return ONLY 3 numbered lines (1., 2., 3.) with the exact message to send. No preamble, no bold titles, no explanations. Max 25 words per question."
             )
             
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-3.6-flash',
                 contents=prompt,
             )
             
             lines = [l.strip() for l in response.text.strip().split('\n') if l.strip()]
             cleaned_icebreakers = []
             for line in lines:
-                # Strip leading numbers e.g. "1. ", "2) "
-                cleaned = line.lstrip('0123456789.-) ').strip('" ')
-                if cleaned:
+                cleaned = line.lstrip('0123456789.-)>*#" ').rstrip('"* ')
+                if cleaned and len(cleaned) > 8:
                     cleaned_icebreakers.append(cleaned)
             
             if len(cleaned_icebreakers) >= 3:
+                return cleaned_icebreakers[:3]
+            elif cleaned_icebreakers:
+                while len(cleaned_icebreakers) < 3:
+                    cleaned_icebreakers.append(f"Hey {u2_name}! What's the most exciting thing that happened to you this week?")
                 return cleaned_icebreakers[:3]
         except Exception as e:
             # Fall back gracefully to heuristic engine
