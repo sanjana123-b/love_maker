@@ -133,8 +133,22 @@ def get_discover_candidates(user, limit=30):
         'profile__interests_tags'
     )
 
-    # Gender preference filtering if configured
+    # Advanced Geolocation Filtering (PostGIS)
     user_profile = getattr(user, 'profile', None)
+    
+    # We could extract search_radius from user preferences, default to 50 miles
+    search_radius = getattr(user_profile, 'search_radius', 50)
+    
+    if user_profile and getattr(user_profile, 'location', None):
+        try:
+            from django.contrib.gis.measure import D
+            candidates_qs = candidates_qs.filter(
+                profile__location__distance_lte=(user_profile.location, D(mi=search_radius))
+            )
+        except ImportError:
+            pass # Fallback if GIS is not configured
+
+    # Gender preference filtering if configured
     if user_profile and user_profile.looking_for in ['male', 'female']:
         candidates_qs = candidates_qs.filter(profile__gender=user_profile.looking_for)
 

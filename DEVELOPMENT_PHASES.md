@@ -190,3 +190,22 @@ This document contains a comprehensive, phase-by-phase record of all technical i
 - **Frontend:** Bootstrap 5.3, Vanilla ES6 JavaScript, Chart.js, Canvas-Confetti, CSS3 animations
 - **Testing:** Pytest, Pytest-Django, Pytest-Cov
 - **DevOps:** Docker, Docker Compose, WhiteNoise, GitHub Actions CI/CD
+
+## 🚀 Phase 6: Advanced Backend Features (SSO, WebRTC, PostGIS, Push, Premium Tier)
+
+**Branch:** eature/phase-6-advanced-features
+
+### 🎯 Objectives
+- Implement advanced geofencing using PostGIS.
+- Set up Social Sign-On (Google/Apple) using django-allauth.
+- Build a WebRTC signaling server for Video/Audio virtual dates.
+- Integrate Web Push notifications for offline match/message alerts.
+- Add internal subscription models for premium monetization tiers.
+
+### 🔑 Key Implementations
+1. **Advanced Geolocation (PostGIS):** Added GDAL/GEOS dependencies to Docker and replaced PostgreSQL with PostGIS image. Updated Profile model with PointField and search_radius.
+2. **Social SSO (django-allauth):** Configured Google and Apple provider architectures in settings.py.
+3. **WebRTC Signaling (chat/call_consumers.py):** Created asynchronous CallConsumer to broadcast WebRTC offer, nswer, and ice_candidate SDP packets for P2P connections.
+4. **Web Push (django-webpush):** Added VAPID key configurations and URL bindings for browser push notifications.
+5. **Monetization Engine (UserSubscription):** Created internal Subscription schema supporting Free, Gold, and Platinum tiers with is_premium property.
+
