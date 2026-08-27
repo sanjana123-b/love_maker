@@ -13,7 +13,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgis/postgis:16-3.4-alpine
         env:
           POSTGRES_DB: lovematch_test_db
           POSTGRES_USER: loveuser
@@ -37,18 +37,25 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Install Dependencies
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binutils libproj-dev gdal-bin libgdal-dev
+
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Django System & Security Check
+        env:
+          DATABASE_URL: postgres://loveuser:lovepass@localhost:5432/lovematch_test_db
         run: |
           python manage.py check
 
       - name: Run Pytest Suite with Coverage
         env:
-          DATABASE_URL: sqlite:///test_db.sqlite3
+          DATABASE_URL: postgres://loveuser:lovepass@localhost:5432/lovematch_test_db
           SECRET_KEY: ci-secret-key-12345
           DEBUG: True
         run: |
@@ -63,7 +70,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: actions/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Docker Image
         uses: docker/build-push-action@v5

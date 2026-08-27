@@ -12,7 +12,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_view, name='home'),
     path('health/', health_check, name='health_check'),
+    path('accounts/', include('allauth.urls')),
     path('accounts/', include('accounts.urls')),
     path('matching/', include('matching.urls')),
     path('chat/', include('chat.urls')),
+    path('webpush/', include('webpush.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

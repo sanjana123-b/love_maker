@@ -54,6 +54,15 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'matching.apps.MatchingConfig',
     'chat.apps.ChatConfig',
+    
+    # Advanced Features
+    'django.contrib.gis',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.apple',
+    'webpush',
 ]
 
 MIDDLEWARE = [
@@ -65,7 +74,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+SITE_ID = 1
 
 ROOT_URLCONF = 'lovematch.urls'
 
@@ -100,6 +116,8 @@ db_url = os.environ.get('DATABASE_URL')
 if db_url and hasattr(env, 'db'):
     try:
         DATABASES['default'] = env.db('DATABASE_URL')
+        if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+            DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
     except Exception:
         pass
 
@@ -183,3 +201,10 @@ if not DEBUG:
 
 # Google Gemini API Configuration
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+
+# Web Push Settings
+WEBPUSH_SETTINGS = {
+    'VAPID_PUBLIC_KEY': env('VAPID_PUBLIC_KEY', default=''),
+    'VAPID_PRIVATE_KEY': env('VAPID_PRIVATE_KEY', default=''),
+    'VAPID_ADMIN_EMAIL': env('VAPID_ADMIN_EMAIL', default='admin@example.com')
+}

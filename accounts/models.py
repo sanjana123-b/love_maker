@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import date
+from django.contrib.gis.db import models as gis_models
+from django.utils import timezone
 
 
 class InterestTag(models.Model):
@@ -68,6 +70,10 @@ class Profile(models.Model):
     is_verified = models.BooleanField(default=False)
     is_incognito = models.BooleanField(default=False, help_text='Hide profile from public browse deck')
     
+    # Advanced Geolocation
+    location = gis_models.PointField(geography=True, null=True, blank=True)
+    search_radius = models.PositiveSmallIntegerField(default=50, help_text='Search radius in miles')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -124,6 +130,12 @@ class Profile(models.Model):
     def is_blocking(self, other_user):
         """Check if this profile's user has blocked other_user."""
         return BlockRecord.objects.filter(blocker=self.user, blocked_user=other_user).exists()
+
+    @property
+    def is_premium(self):
+        if hasattr(self.user, 'subscription'):
+            return self.user.subscription.is_active()
+        return False
 
 
 class ProfilePhoto(models.Model):
@@ -223,3 +235,24 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'profile'):
         instance.profile.save()
+
+class UserSubscription(models.Model):
+    PLAN_CHOICES = [
+        ('free', 'Free Tier'),
+        ('gold', 'LoveMatch Gold'),
+        ('platinum', 'LoveMatch Platinum'),
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
+    plan_type = models.CharField(max_length=20, choices=PLAN_CHOICES, default='free')
+    active_until = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_active(self):
+        if self.plan_type == 'free':
+            return False
+        if self.active_until and self.active_until > timezone.now():
+            return True
+        return False
+
+    def __str__(self):
+        return f'{self.user.username} - {self.plan_type}'

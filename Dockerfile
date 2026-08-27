@@ -14,6 +14,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
+    binutils \
+    libproj-dev \
+    gdal-bin \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -33,6 +36,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     curl \
+    binutils \
+    libproj-dev \
+    gdal-bin \
+    postgis \
     && rm -rf /var/lib/apt/lists/*
 
 # Create secure non-root user
