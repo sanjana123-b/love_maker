@@ -5,228 +5,277 @@
 
 {% block content %}
 <section class="py-4 py-md-5" style="min-height:85vh;background:#1a1a2e;">
-    <div class="container">
-
-        <!-- Page Header -->
-        <div class="mb-4">
-            <h2 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;">
-                <i class="bi bi-person-gear me-2" style="color:#ff6b8a;"></i>Edit Your Profile
-            </h2>
-            <p class="text-muted mb-0">Keep your profile fresh to attract better matches</p>
+    <div class="container" style="max-width:880px;">
+        
+        <!-- Header -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+                <h2 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;">
+                    <i class="bi bi-person-gear me-2" style="color:#ff6b8a;"></i>Edit
+                    <span style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Profile</span>
+                </h2>
+                <p class="text-muted small mb-0">Showcase your personality, hobbies, and photos to attract compatible matches.</p>
+            </div>
+            <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-light rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Dashboard
+            </a>
         </div>
 
-        <form method="POST" enctype="multipart/form-data" novalidate>
+        <!-- Profile Strength Meter -->
+        <div class="p-4 rounded-4 shadow-sm mb-4" style="background:linear-gradient(135deg,rgba(255,107,138,.12),rgba(108,92,231,.12));border:1px solid rgba(255,107,138,.2);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold text-white small"><i class="bi bi-shield-check me-1" style="color:#ff6b8a;"></i> Profile Strength Meter</span>
+                <span class="fw-bold fs-6" style="color:#ff6b8a;">{{ profile_strength }}% Complete</span>
+            </div>
+            <div class="progress mb-2" style="height:10px;background:rgba(255,255,255,.08);border-radius:10px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                     style="width: {{ profile_strength }}%; background: linear-gradient(90deg,#ff6b8a,#6c5ce7); border-radius:10px;"
+                     aria-valuenow="{{ profile_strength }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <p class="text-muted small mb-0">
+                {% if profile_strength < 70 %}
+                💡 <em>Tip: Add prompt answers and select your interest tags to get up to 3x more match recommendations!</em>
+                {% else %}
+                🎉 <em>Great job! Your profile looks compelling and stands out in discovery feeds.</em>
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- ════════ MAIN EDIT FORM ════════ -->
+        <form method="POST" enctype="multipart/form-data" class="mb-5">
             {% csrf_token %}
 
-            <!-- Non-field Errors -->
-            {% if user_form.non_field_errors or profile_form.non_field_errors %}
-            <div class="alert py-2 px-3 mb-4" style="background:rgba(220,53,69,.12);border:1px solid rgba(220,53,69,.25);border-radius:12px;color:#ff6b7a;font-size:.9rem;">
-                <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                {% for error in user_form.non_field_errors %}{{ error }}<br>{% endfor %}
-                {% for error in profile_form.non_field_errors %}{{ error }}<br>{% endfor %}
-            </div>
-            {% endif %}
+            <div class="p-4 p-md-5 rounded-4 shadow-sm mb-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);">
+                <h5 class="fw-bold mb-4 text-white" style="font-family:'Playfair Display',serif;">
+                    <i class="bi bi-person-lines-fill me-2" style="color:#ff6b8a;"></i>Basic Information
+                </h5>
 
-            <div class="row g-4">
-                <!-- ═══════════ LEFT COLUMN — Profile Picture ═══════════ -->
-                <div class="col-lg-4">
-                    <div class="p-4 text-center" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;position:sticky;top:100px;">
-                        <h6 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;color:rgba(255,255,255,.9);">
-                            <i class="bi bi-camera-fill me-2" style="color:#6c5ce7;"></i>Profile Photo
-                        </h6>
-
-                        <!-- Photo Preview -->
-                        <div class="mb-4">
-                            {% if profile_form.instance.profile_pic %}
-                            <img src="{{ profile_form.instance.profile_pic.url }}" alt="Profile photo" class="rounded-3 shadow" style="width:200px;height:240px;object-fit:cover;border:3px solid rgba(255,107,138,.2);">
-                            {% else %}
-                            <div class="d-flex align-items-center justify-content-center rounded-3 shadow mx-auto" style="width:200px;height:240px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:4rem;font-weight:700;border:3px solid rgba(255,107,138,.2);">
-                                {{ user.first_name|default:user.username|make_list|first|upper }}
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Upload Field -->
-                        <div class="mb-2">
-                            <label for="id_profile_pic" class="form-label small text-muted">Upload new photo</label>
-                            <input type="file" name="profile_pic" id="id_profile_pic" accept="image/*"
-                                   class="form-control form-control-sm"
-                                   style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.7);font-size:.85rem;">
-                            {% for error in profile_form.profile_pic.errors %}
-                                <div class="small mt-1" style="color:#ff6b7a;"><i class="bi bi-x-circle-fill me-1"></i>{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        <p class="text-muted mb-0" style="font-size:.75rem;">JPG, PNG or WebP. Max 5MB.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">First Name</label>
+                        {{ user_form.first_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">Last Name</label>
+                        {{ user_form.last_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">Email Address</label>
+                        {{ user_form.email }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">Birth Date</label>
+                        {{ profile_form.birth_date }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">Gender</label>
+                        {{ profile_form.gender }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">Looking For</label>
+                        {{ profile_form.looking_for }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">City / Location</label>
+                        {{ profile_form.city }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">Zodiac Sign</label>
+                        {{ profile_form.zodiac_sign }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">Occupation / Job</label>
+                        {{ profile_form.occupation }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-light">Education / School</label>
+                        {{ profile_form.education }}
                     </div>
                 </div>
 
-                <!-- ═══════════ RIGHT COLUMN — Form Fields ═══════════ -->
-                <div class="col-lg-8">
-                    <!-- Personal Information -->
-                    <div class="p-4 mb-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
-                        <h6 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;color:rgba(255,255,255,.9);">
-                            <i class="bi bi-person-fill me-2" style="color:#ff6b8a;"></i>Personal Information
-                        </h6>
+                <hr style="border-color:rgba(255,255,255,.08);margin:1.8rem 0;">
 
-                        <div class="row g-3">
-                            <!-- First Name -->
-                            <div class="col-md-6">
-                                <label for="id_first_name" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">First Name</label>
-                                <input type="text" name="first_name" id="id_first_name"
-                                       value="{{ user_form.first_name.value|default:'' }}"
-                                       class="form-control {% if user_form.first_name.errors %}is-invalid{% endif %}"
-                                       placeholder="Your first name"
-                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
-                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.1)'"
-                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
-                                {% for error in user_form.first_name.errors %}
-                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <!-- Last Name -->
-                            <div class="col-md-6">
-                                <label for="id_last_name" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Last Name</label>
-                                <input type="text" name="last_name" id="id_last_name"
-                                       value="{{ user_form.last_name.value|default:'' }}"
-                                       class="form-control {% if user_form.last_name.errors %}is-invalid{% endif %}"
-                                       placeholder="Your last name"
-                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
-                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.1)'"
-                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
-                                {% for error in user_form.last_name.errors %}
-                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <!-- Email -->
-                            <div class="col-12">
-                                <label for="id_email" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Email Address</label>
-                                <input type="email" name="email" id="id_email"
-                                       value="{{ user_form.email.value|default:'' }}"
-                                       class="form-control {% if user_form.email.errors %}is-invalid{% endif %}"
-                                       placeholder="your@email.com"
-                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
-                                       onfocus="this.style.borderColor='#6c5ce7';this.style.boxShadow='0 0 0 3px rgba(108,92,231,.1)'"
-                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
-                                {% for error in user_form.email.errors %}
-                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
-                                {% endfor %}
-                            </div>
+                <!-- Bio & Avatar -->
+                <h5 class="fw-bold mb-3 text-white" style="font-family:'Playfair Display',serif;">
+                    <i class="bi bi-chat-quote-fill me-2" style="color:#6c5ce7;"></i>Bio & Primary Avatar
+                </h5>
+
+                <div class="row g-4 align-items-center mb-3">
+                    <div class="col-auto text-center">
+                        {% if profile.profile_pic %}
+                        <img id="avatarPreview" src="{{ profile.profile_pic.url }}" alt="{{ user.username }}" class="rounded-circle shadow" style="width:100px;height:100px;object-fit:cover;border:3px solid #ff6b8a;">
+                        {% else %}
+                        <div id="avatarPreviewPlaceholder" class="rounded-circle shadow d-flex align-items-center justify-content-center" style="width:100px;height:100px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:2.2rem;font-weight:700;color:#fff;border:3px solid #ff6b8a;">
+                            {{ user.first_name|default:user.username|make_list|first|upper }}
                         </div>
+                        {% endif %}
                     </div>
-
-                    <!-- About You -->
-                    <div class="p-4 mb-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
-                        <h6 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;color:rgba(255,255,255,.9);">
-                            <i class="bi bi-heart-fill me-2" style="color:#6c5ce7;"></i>About You
-                        </h6>
-
-                        <div class="row g-3">
-                            <!-- Bio -->
-                            <div class="col-12">
-                                <label for="id_bio" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Bio</label>
-                                <textarea name="bio" id="id_bio" rows="4"
-                                          class="form-control {% if profile_form.bio.errors %}is-invalid{% endif %}"
-                                          placeholder="Tell others about yourself — what makes you unique?"
-                                          style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;resize:vertical;"
-                                          onfocus="this.style.borderColor='#6c5ce7';this.style.boxShadow='0 0 0 3px rgba(108,92,231,.1)'"
-                                          onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">{{ profile_form.bio.value|default:'' }}</textarea>
-                                {% for error in profile_form.bio.errors %}
-                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <!-- Birth Date -->
-                            <div class="col-md-6">
-                                <label for="id_birth_date" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Birth Date</label>
-                                <input type="date" name="birth_date" id="id_birth_date"
-                                       value="{{ profile_form.birth_date.value|default:'' }}"
-                                       class="form-control {% if profile_form.birth_date.errors %}is-invalid{% endif %}"
-                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
-                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.1)'"
-                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
-                                {% for error in profile_form.birth_date.errors %}
-                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <!-- Gender -->
-                            <div class="col-md-6">
-                                <label for="id_gender" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Gender</label>
-                                <select name="gender" id="id_gender"
-                                        class="form-select {% if profile_form.gender.errors %}is-invalid{% endif %}"
-                                        style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;">
-                                    <option value="" style="background:#1a1a2e;">Select gender</option>
-                                    {% for value, label in profile_form.gender.field.choices %}
-                                        {% if value %}
-                                        <option value="{{ value }}" {% if profile_form.gender.value == value %}selected{% endif %} style="background:#1a1a2e;">{{ label }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                                {% for error in profile_form.gender.errors %}
-                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <!-- City -->
-                            <div class="col-md-6">
-                                <label for="id_city" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">City</label>
-                                <input type="text" name="city" id="id_city"
-                                       value="{{ profile_form.city.value|default:'' }}"
-                                       class="form-control {% if profile_form.city.errors %}is-invalid{% endif %}"
-                                       placeholder="e.g. New York"
-                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
-                                       onfocus="this.style.borderColor='#ff6b8a';this.style.boxShadow='0 0 0 3px rgba(255,107,138,.1)'"
-                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
-                                {% for error in profile_form.city.errors %}
-                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <!-- Looking For -->
-                            <div class="col-md-6">
-                                <label for="id_looking_for" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Looking For</label>
-                                <select name="looking_for" id="id_looking_for"
-                                        class="form-select {% if profile_form.looking_for.errors %}is-invalid{% endif %}"
-                                        style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;">
-                                    <option value="" style="background:#1a1a2e;">Select preference</option>
-                                    {% for value, label in profile_form.looking_for.field.choices %}
-                                        {% if value %}
-                                        <option value="{{ value }}" {% if profile_form.looking_for.value == value %}selected{% endif %} style="background:#1a1a2e;">{{ label }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                                {% for error in profile_form.looking_for.errors %}
-                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <!-- Interests -->
-                            <div class="col-12">
-                                <label for="id_interests" class="form-label small fw-semibold" style="color:rgba(255,255,255,.7);">Interests</label>
-                                <input type="text" name="interests" id="id_interests"
-                                       value="{{ profile_form.interests.value|default:'' }}"
-                                       class="form-control {% if profile_form.interests.errors %}is-invalid{% endif %}"
-                                       placeholder="e.g. Travel, Music, Photography, Cooking"
-                                       style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;padding:.65rem 1rem;"
-                                       onfocus="this.style.borderColor='#6c5ce7';this.style.boxShadow='0 0 0 3px rgba(108,92,231,.1)'"
-                                       onblur="this.style.borderColor='rgba(255,255,255,.1)';this.style.boxShadow='none'">
-                                <div class="form-text small" style="color:rgba(255,255,255,.35);">Separate interests with commas</div>
-                                {% for error in profile_form.interests.errors %}
-                                    <div class="small mt-1" style="color:#ff6b7a;">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
+                    <div class="col">
+                        <label class="form-label small fw-bold text-light">Update Main Photo</label>
+                        {{ profile_form.profile_pic }}
+                        <small class="text-muted d-block mt-1">Recommended: Clear portrait or smiling headshot (JPG/PNG/WebP, max 5MB).</small>
                     </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-flex flex-wrap gap-3 justify-content-between">
-                        <a href="{% url 'dashboard' %}" class="btn px-4 py-2 fw-semibold" style="background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.1);border-radius:50px;transition:all .3s ease;" onmouseover="this.style.borderColor='rgba(255,255,255,.25)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.6)'">
-                            <i class="bi bi-arrow-left me-1"></i>Cancel
-                        </a>
-                        <button type="submit" class="btn px-5 py-2 fw-semibold text-white shadow" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:50px;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,107,138,.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(0,0,0,.2)'">
-                            <i class="bi bi-check-lg me-1"></i>Save Changes
-                        </button>
-                    </div>
-
                 </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-light">About Me (Bio)</label>
+                    {{ profile_form.bio }}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-light">Interests (Comma Separated)</label>
+                    {{ profile_form.interests }}
+                </div>
+
+                <!-- Incognito Toggle -->
+                <div class="p-3 rounded-3 d-flex align-items-center justify-content-between mb-4" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08);">
+                    <div>
+                        <div class="fw-bold text-white small"><i class="bi bi-incognito me-1 text-warning"></i> Incognito / Ghost Mode</div>
+                        <div class="text-muted" style="font-size:.78rem;">Hide your profile from public discovery decks (only mutual matches can see you).</div>
+                    </div>
+                    <div class="form-check form-switch">
+                        {{ profile_form.is_incognito }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-lg px-5 py-3 fw-bold text-white shadow" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:50px;font-size:1rem;transition:all .3s ease;">
+                    <i class="bi bi-check2-circle me-2"></i>Save Basic Profile
+                </button>
             </div>
         </form>
 
+        <!-- ════════ MULTI-PHOTO GALLERY SECTION ════════ -->
+        <div class="p-4 p-md-5 rounded-4 shadow-sm mb-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+                <div>
+                    <h5 class="fw-bold mb-1 text-white" style="font-family:'Playfair Display',serif;">
+                        <i class="bi bi-images me-2" style="color:#ff6b8a;"></i>Photo Gallery ({{ gallery_photos.count }}/6)
+                    </h5>
+                    <p class="text-muted small mb-0">Add up to 6 photos showing your lifestyle, travels, and hobbies.</p>
+                </div>
+            </div>
+
+            <!-- Photos Grid -->
+            <div class="row g-3 mb-4">
+                {% for photo in gallery_photos %}
+                <div class="col-6 col-sm-4 col-md-3">
+                    <div class="position-relative rounded-4 overflow-hidden shadow-sm" style="height:170px;border:1px solid rgba(255,255,255,.1);">
+                        <img src="{{ photo.image.url }}" alt="Gallery" class="w-100 h-100" style="object-fit:cover;">
+                        
+                        <form method="POST" action="{% url 'delete_photo' photo.id %}" class="position-absolute top-0 end-0 m-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger rounded-circle d-flex align-items-center justify-content-center" style="width:28px;height:28px;" title="Delete Photo">
+                                <i class="bi bi-trash" style="font-size:.75rem;"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if gallery_photos.count < 6 %}
+                <!-- Upload New Photo Form -->
+                <div class="col-6 col-sm-4 col-md-3">
+                    <button type="button" class="w-100 h-100 p-3 rounded-4 d-flex flex-column align-items-center justify-content-center gap-2 border-dashed" style="min-height:170px;background:rgba(255,255,255,.02);border:2px dashed rgba(255,107,138,.3);color:#ff6b8a;" data-bs-toggle="modal" data-bs-target="#uploadPhotoModal">
+                        <i class="bi bi-plus-circle-fill fs-2"></i>
+                        <span class="small fw-bold">Add Photo</span>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ════════ PROFILE PROMPTS SECTION ════════ -->
+        <div class="p-4 p-md-5 rounded-4 shadow-sm mb-4" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+                <div>
+                    <h5 class="fw-bold mb-1 text-white" style="font-family:'Playfair Display',serif;">
+                        <i class="bi bi-card-text me-2" style="color:#6c5ce7;"></i>Profile Prompts & Icebreaker Answers
+                    </h5>
+                    <p class="text-muted small mb-0">Share fun personal answers to make starting conversations effortless.</p>
+                </div>
+            </div>
+
+            <!-- Existing Prompts List -->
+            {% if prompt_answers %}
+            <div class="d-flex flex-column gap-3 mb-4">
+                {% for prompt in prompt_answers %}
+                <div class="p-3.5 rounded-4 position-relative" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,107,138,.2);">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="badge rounded-pill px-3 py-1 mb-2" style="background:rgba(255,107,138,.15);color:#ff6b8a;font-size:.78rem;">{{ prompt.question }}</span>
+                            <h6 class="fw-bold text-white mb-0" style="line-height:1.5;">"{{ prompt.answer }}"</h6>
+                        </div>
+                        <form method="POST" action="{% url 'delete_prompt' prompt.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-1" style="width:28px;height:28px;" title="Remove Prompt">
+                                <i class="bi bi-trash" style="font-size:.75rem;"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Add / Edit Prompt Form -->
+            <form method="POST" action="{% url 'save_prompt' %}" class="p-3.5 rounded-4" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);">
+                {% csrf_token %}
+                <h6 class="fw-bold text-light mb-3"><i class="bi bi-plus-circle me-1" style="color:#6c5ce7;"></i> Add a Prompt</h6>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Choose Question</label>
+                    <select name="question" class="form-select bg-dark text-white border-0 py-2.5" style="border-radius:12px;" required>
+                        {% for choice_val, choice_label in prompt_choices %}
+                        <option value="{{ choice_val }}">{{ choice_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Your Answer</label>
+                    <textarea name="answer" rows="2" maxlength="300" required placeholder="Write a witty or genuine answer..." class="form-control bg-dark text-white border-0" style="border-radius:12px;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-sm px-4 py-2 fw-bold text-white rounded-pill" style="background:linear-gradient(135deg,#6c5ce7,#8b7cf7);">
+                    Save Prompt Card
+                </button>
+            </form>
+        </div>
+
+        <!-- Trust & Safety Management Link -->
+        <div class="p-3 rounded-4 text-center" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);">
+            <a href="{% url 'blocked_list' %}" class="text-muted small text-decoration-none">
+                <i class="bi bi-shield-lock me-1"></i> Manage Blocked Accounts & Privacy Settings
+            </a>
+        </div>
+
     </div>
 </section>
+
+<!-- Upload Photo Modal -->
+<div class="modal fade" id="uploadPhotoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-light" style="background:#1a1a2e;border:1px solid rgba(255,107,138,.3)!important;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" style="font-family:'Playfair Display',serif;">Upload Gallery Photo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'upload_photo' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Select Photo</label>
+                        <input type="file" name="photo" accept="image/*" required class="form-control bg-dark text-white border-0 py-2.5" style="border-radius:12px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Caption (Optional)</label>
+                        <input type="text" name="caption" placeholder="e.g. Hiking in Yosemite" class="form-control bg-dark text-white border-0 py-2.5" style="border-radius:12px;">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn text-white rounded-pill px-4 fw-bold" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

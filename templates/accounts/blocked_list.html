@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Blocked Accounts — LoveMatch{% endblock %}
+
+{% block content %}
+<section class="py-4 py-md-5" style="min-height:85vh;background:#1a1a2e;">
+    <div class="container" style="max-width:720px;">
+        
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-white" style="font-family:'Playfair Display',serif;">
+                    <i class="bi bi-shield-lock-fill me-2" style="color:#ff6b8a;"></i>Privacy & Blocked Accounts
+                </h3>
+                <p class="text-muted small mb-0">Manage accounts you have blocked from contacting or seeing your profile.</p>
+            </div>
+            <a href="{% url 'profile_edit' %}" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Edit Profile
+            </a>
+        </div>
+
+        <div class="card border-0 rounded-4 shadow-lg overflow-hidden" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)!important;">
+            <div class="card-body p-4">
+                
+                {% if blocked_records %}
+                <div class="d-flex flex-column gap-3">
+                    {% for record in blocked_records %}
+                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-between gap-3" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);">
+                        <div class="d-flex align-items-center gap-3">
+                            {% if record.blocked_user.profile and record.blocked_user.profile.profile_pic %}
+                            <img src="{{ record.blocked_user.profile.profile_pic.url }}" alt="{{ record.blocked_user.username }}" class="rounded-circle shadow" style="width:48px;height:48px;object-fit:cover;">
+                            {% else %}
+                            <div class="rounded-circle shadow d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);font-size:1.2rem;font-weight:700;color:#fff;">
+                                {{ record.blocked_user.first_name|default:record.blocked_user.username|make_list|first|upper }}
+                            </div>
+                            {% endif %}
+                            
+                            <div>
+                                <h6 class="fw-bold text-white mb-0">{{ record.blocked_user.first_name|default:record.blocked_user.username }}</h6>
+                                <small class="text-muted">Blocked on {{ record.created_at|date:"M d, Y" }} {% if record.reason %} • {{ record.reason }}{% endif %}</small>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{% url 'unblock_user' record.blocked_user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1.5 fw-semibold" style="font-size:.82rem;">
+                                Unblock
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-shield-check" style="font-size:3rem;color:#06d6a0;opacity:.8;"></i>
+                    <h5 class="fw-bold text-white mt-3 mb-1">No Blocked Accounts</h5>
+                    <p class="text-muted small mb-0">You have not blocked any users. Your privacy and trust are protected at all times.</p>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
