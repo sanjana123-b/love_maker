@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, InterestTag, ProfilePrompt
 
 
 class RegisterForm(UserCreationForm):
@@ -48,24 +48,41 @@ class ProfileForm(forms.ModelForm):
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         required=False,
     )
+    interests_tags = forms.ModelMultipleChoiceField(
+        queryset=InterestTag.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
 
     class Meta:
         model = Profile
-        fields = ['bio', 'birth_date', 'gender', 'city', 'interests', 'profile_pic', 'looking_for']
+        fields = [
+            'bio', 'birth_date', 'gender', 'city', 'occupation', 'education',
+            'zodiac_sign', 'interests', 'interests_tags', 'profile_pic',
+            'looking_for', 'is_incognito'
+        ]
         widgets = {
             'bio': forms.Textarea(attrs={
                 'class': 'form-control', 'rows': 4,
-                'placeholder': 'Tell others about yourself...',
+                'placeholder': 'Tell others about your passions, vibe, and what makes you unique...',
             }),
             'gender': forms.Select(attrs={'class': 'form-select'}),
             'city': forms.TextInput(attrs={
                 'class': 'form-control', 'placeholder': 'Your city',
             }),
+            'occupation': forms.TextInput(attrs={
+                'class': 'form-control', 'placeholder': 'e.g. Software Engineer, Designer, Artist',
+            }),
+            'education': forms.TextInput(attrs={
+                'class': 'form-control', 'placeholder': 'e.g. University of California',
+            }),
+            'zodiac_sign': forms.Select(attrs={'class': 'form-select'}),
             'interests': forms.TextInput(attrs={
                 'class': 'form-control', 'placeholder': 'e.g. hiking, cooking, music, travel',
             }),
             'looking_for': forms.Select(attrs={'class': 'form-select'}),
             'profile_pic': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'is_incognito': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 

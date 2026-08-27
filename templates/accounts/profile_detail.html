@@ -3,115 +3,143 @@
 
 {% block title %}{{ profile.user.first_name|default:profile.user.username }}'s Profile — LoveMatch{% endblock %}
 
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <section class="py-4 py-md-5" style="min-height:85vh;background:#1a1a2e;">
-    <div class="container">
+    <div class="container" style="max-width:960px;">
 
-        <!-- Back Button -->
-        <div class="mb-4">
-            <a href="{% url 'profile_list' %}" class="btn btn-sm px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2" style="background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.1);border-radius:50px;transition:all .3s ease;" onmouseover="this.style.borderColor='rgba(255,107,138,.3)';this.style.color='#ff6b8a'" onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.color='rgba(255,255,255,.6)'">
+        <!-- Back & Safety Buttons -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{% url 'profile_list' %}" class="btn btn-sm px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2" style="background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.1);border-radius:50px;">
                 <i class="bi bi-arrow-left"></i> Back to Profiles
             </a>
+
+            {% if profile.user != user %}
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-light rounded-circle" type="button" data-bs-toggle="dropdown" style="width:36px;height:36px;border-color:rgba(255,255,255,.2);">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background:#1a1a2e;border:1px solid rgba(255,107,138,.2);">
+                    <li>
+                        <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#blockModal">
+                            <i class="bi bi-slash-circle me-2"></i>Block User
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item text-warning" data-bs-toggle="modal" data-bs-target="#reportModal">
+                            <i class="bi bi-flag me-2"></i>Report Profile
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
         </div>
 
-        <!-- ═══════════════════ PROFILE CARD ═══════════════════ -->
+        <!-- ════════ PROFILE MAIN CARD ════════ -->
         <div class="row g-4 justify-content-center">
-            <!-- Left: Profile Image -->
-            <div class="col-md-5 col-lg-4">
-                <div class="position-relative overflow-hidden" style="border-radius:16px;border:2px solid rgba(255,107,138,.15);">
+            
+            <!-- Left Column: Photos & Primary Actions -->
+            <div class="col-md-5">
+                <div class="position-relative overflow-hidden rounded-4 shadow-lg mb-3" style="border:2px solid rgba(255,107,138,.2);">
                     {% if profile.profile_pic %}
-                    <img src="{{ profile.profile_pic.url }}" alt="{{ profile.user.first_name }}" class="w-100" style="display:block;min-height:380px;max-height:480px;object-fit:cover;">
+                    <img id="mainDetailPhoto" src="{{ profile.profile_pic.url }}" alt="{{ profile.user.first_name }}" class="w-100" style="display:block;min-height:380px;max-height:480px;object-fit:cover;">
                     {% else %}
                     <div class="w-100 d-flex align-items-center justify-content-center" style="min-height:380px;max-height:480px;background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
-                        <span style="font-size:6rem;font-weight:700;opacity:.7;">
+                        <span style="font-size:6rem;font-weight:700;color:#fff;opacity:.8;">
                             {{ profile.user.first_name|default:profile.user.username|make_list|first|upper }}
                         </span>
                     </div>
                     {% endif %}
-                    <!-- Gradient overlay at bottom -->
-                    <div class="position-absolute w-100" style="bottom:0;left:0;height:40%;background:linear-gradient(transparent,rgba(26,26,46,.6));pointer-events:none;"></div>
+
+                    {% if profile.user != user %}
+                    <!-- Compatibility Badge -->
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <span class="badge rounded-pill px-3 py-2 shadow-lg" style="background:rgba(26,26,46,.9);backdrop-filter:blur(10px);color:#ff6b8a;border:1px solid rgba(255,107,138,.4);font-size:.88rem;font-weight:700;">
+                            <i class="bi bi-lightning-charge-fill me-1" style="color:#ff6b8a;"></i>{{ compatibility }}% Match
+                        </span>
+                    </div>
+                    {% endif %}
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="d-flex gap-2 mt-3">
+                <!-- Gallery Photo Thumbnails (if any) -->
+                {% if gallery_photos %}
+                <div class="d-flex gap-2 overflow-x-auto pb-2 mb-3">
+                    {% if profile.profile_pic %}
+                    <img src="{{ profile.profile_pic.url }}" class="rounded-3 shadow-sm cursor-pointer photo-thumb border border-danger" style="width:64px;height:64px;object-fit:cover;" onclick="document.getElementById('mainDetailPhoto').src=this.src;">
+                    {% endif %}
+                    {% for photo in gallery_photos %}
+                    <img src="{{ photo.image.url }}" class="rounded-3 shadow-sm cursor-pointer photo-thumb border border-secondary" style="width:64px;height:64px;object-fit:cover;" onclick="document.getElementById('mainDetailPhoto').src=this.src;">
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Primary Action Buttons -->
+                <div class="d-flex gap-2">
                     {% if profile.user == user %}
-                        <!-- Own profile: Edit button -->
-                        <a href="{% url 'profile_edit' %}" class="btn flex-grow-1 py-3 fw-semibold text-white" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);border:none;border-radius:12px;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,107,138,.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-                            <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                        <a href="{% url 'profile_edit' %}" class="btn flex-grow-1 py-3 fw-semibold text-white rounded-pill shadow" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                            <i class="bi bi-pencil-square me-2"></i>Edit My Profile
                         </a>
                     {% else %}
-                        <!-- Other profile: Like & Love Match buttons -->
-                        <a href="{% url 'like_user' profile.user.pk %}" class="btn flex-grow-1 py-3 fw-semibold text-white shadow-sm d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#ff6b8a,#ee5a6f);border:none;border-radius:12px;transition:all .3s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,107,138,.3)'" onmouseout="this.style.transform='translateY(0)'">
-                            <i class="bi bi-heart-fill me-2"></i>Like Profile
-                        </a>
-                        <a href="{% url 'love_match' %}?target_user_id={{ profile.user.pk }}" class="btn py-3 px-4 fw-semibold text-white shadow-sm d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#6c5ce7,#8b7cf7);border:none;border-radius:12px;transition:all .3s ease;" title="Calculate Love Match Compatibility">
-                            <i class="bi bi-heart-pulse-fill me-1"></i> Love Match
+                        {% if match %}
+                            <a href="{% url 'conversation' match.id %}" class="btn flex-grow-1 py-3 fw-bold text-white rounded-pill shadow-lg" style="background:linear-gradient(135deg,#ff6b8a,#6c5ce7);">
+                                <i class="bi bi-chat-heart-fill me-2"></i>Message Match
+                            </a>
+                        {% else %}
+                            <a href="{% url 'like_user' profile.user.pk %}" class="btn flex-grow-1 py-3 fw-bold text-white rounded-pill shadow-sm d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#ff6b8a,#ee5a6f);">
+                                <i class="bi bi-heart-fill me-2"></i>{% if has_liked %}Liked (Tap to Unlike){% else %}Send Like 💕{% endif %}
+                            </a>
+                        {% endif %}
+
+                        <a href="{% url 'love_match' %}?target_user_id={{ profile.user.pk }}" class="btn py-3 px-3.5 fw-semibold text-white rounded-pill shadow-sm d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#6c5ce7,#8b7cf7);" title="Love Match Verdict">
+                            <i class="bi bi-heart-pulse-fill"></i>
                         </a>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Right: Profile Info -->
-            <div class="col-md-7 col-lg-6">
-                <div class="p-4 p-lg-5" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;">
-
-                    <!-- Name & Age -->
-                    <h2 class="fw-bold mb-2" style="font-family:'Playfair Display',serif;">
-                        {{ profile.user.first_name|default:profile.user.username }}
-                        {{ profile.user.last_name }}
-                        {% if profile.age %}
-                        <span class="ms-2 fs-5 fw-normal" style="color:rgba(255,255,255,.5);">{{ profile.age }}</span>
-                        {% endif %}
-                    </h2>
-
-                    <!-- Location -->
-                    {% if profile.city %}
-                    <p class="mb-3 d-flex align-items-center gap-2" style="color:rgba(255,255,255,.6);">
-                        <i class="bi bi-geo-alt-fill" style="color:#ff6b8a;"></i>{{ profile.city }}
-                    </p>
-                    {% endif %}
-
-                    <hr style="border-color:rgba(255,255,255,.06);margin:1.2rem 0;">
-
-                    <!-- Info Grid -->
-                    <div class="row g-3 mb-4">
-                        {% if profile.gender %}
-                        <div class="col-6">
-                            <div class="p-3" style="background:rgba(255,107,138,.05);border-radius:12px;">
-                                <div class="text-muted small mb-1"><i class="bi bi-gender-ambiguous me-1" style="color:#ff6b8a;"></i>Gender</div>
-                                <div class="fw-semibold" style="color:rgba(255,255,255,.85);">{{ profile.get_gender_display|default:profile.gender }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if profile.looking_for %}
-                        <div class="col-6">
-                            <div class="p-3" style="background:rgba(108,92,231,.05);border-radius:12px;">
-                                <div class="text-muted small mb-1"><i class="bi bi-search-heart me-1" style="color:#6c5ce7;"></i>Looking For</div>
-                                <div class="fw-semibold" style="color:rgba(255,255,255,.85);">{{ profile.get_looking_for_display|default:profile.looking_for }}</div>
-                            </div>
-                        </div>
+            <!-- Right Column: Profile Details & Radar Breakdown -->
+            <div class="col-md-7">
+                <div class="p-4 p-lg-5 rounded-4 shadow-sm" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);">
+                    
+                    <!-- Header Info -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                        <h2 class="fw-bold text-white mb-0" style="font-family:'Playfair Display',serif;">
+                            {{ profile.user.first_name|default:profile.user.username }} {{ profile.user.last_name }}
+                            {% if profile.age %}<span class="fs-5 fw-normal text-white-50 ms-2">{{ profile.age }}</span>{% endif %}
+                        </h2>
+                        {% if profile.zodiac_sign %}
+                        <span class="badge rounded-pill px-3 py-1.5" style="background:rgba(108,92,231,.2);color:#a89aff;border:1px solid rgba(108,92,231,.35);font-size:.82rem;">
+                            {{ profile.zodiac_sign }}
+                        </span>
                         {% endif %}
                     </div>
+
+                    <p class="text-muted small mb-3">
+                        {% if profile.city %}<i class="bi bi-geo-alt-fill me-1" style="color:#ff6b8a;"></i>{{ profile.city }}{% endif %}
+                        {% if profile.occupation %} • <i class="bi bi-briefcase-fill me-1" style="color:#6c5ce7;"></i>{{ profile.occupation }}{% endif %}
+                        {% if profile.education %} • <i class="bi bi-mortarboard-fill me-1" style="color:#ffd166;"></i>{{ profile.education }}{% endif %}
+                    </p>
+
+                    <hr style="border-color:rgba(255,255,255,.08);margin:1.2rem 0;">
 
                     <!-- Bio -->
                     {% if profile.bio %}
                     <div class="mb-4">
-                        <h6 class="fw-bold mb-2" style="font-family:'Playfair Display',serif;color:rgba(255,255,255,.8);">
-                            <i class="bi bi-chat-quote-fill me-2" style="color:#6c5ce7;"></i>About
-                        </h6>
-                        <p class="mb-0" style="color:rgba(255,255,255,.65);line-height:1.75;white-space:pre-line;">{{ profile.bio }}</p>
+                        <h6 class="fw-bold text-white-50 mb-2 small text-uppercase" style="letter-spacing:1px;">About</h6>
+                        <p class="text-light opacity-90 mb-0" style="line-height:1.7;white-space:pre-line;">{{ profile.bio }}</p>
                     </div>
                     {% endif %}
 
                     <!-- Interests -->
                     {% if profile.interests_list %}
                     <div class="mb-4">
-                        <h6 class="fw-bold mb-3" style="font-family:'Playfair Display',serif;color:rgba(255,255,255,.8);">
-                            <i class="bi bi-tags-fill me-2" style="color:#ff6b8a;"></i>Interests
-                        </h6>
-                        <div class="d-flex flex-wrap gap-2">
+                        <h6 class="fw-bold text-white-50 mb-2 small text-uppercase" style="letter-spacing:1px;">Passions & Interests</h6>
+                        <div class="d-flex flex-wrap gap-1.5">
                             {% for interest in profile.interests_list %}
-                            <span class="badge rounded-pill px-3 py-2" style="background:rgba(108,92,231,.1);color:#a89aff;border:1px solid rgba(108,92,231,.2);font-weight:500;font-size:.82rem;">
+                            <span class="badge rounded-pill px-3 py-1.5" style="background:rgba(108,92,231,.12);color:#a89aff;border:1px solid rgba(108,92,231,.2);font-weight:500;font-size:.82rem;">
                                 {{ interest }}
                             </span>
                             {% endfor %}
@@ -119,18 +147,110 @@
                     </div>
                     {% endif %}
 
-                    <hr style="border-color:rgba(255,255,255,.06);margin:1.2rem 0;">
-
-                    <!-- Member Since -->
-                    <div class="d-flex align-items-center gap-2" style="color:rgba(255,255,255,.4);font-size:.85rem;">
-                        <i class="bi bi-calendar-heart"></i>
-                        <span>Member since {{ profile.user.date_joined|date:"F Y" }}</span>
+                    <!-- Prompt Answers (if any) -->
+                    {% if prompts %}
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-white-50 mb-2 small text-uppercase" style="letter-spacing:1px;">Conversation Starters</h6>
+                        <div class="d-flex flex-column gap-2">
+                            {% for prompt in prompts %}
+                            <div class="p-3 rounded-3" style="background:rgba(255,107,138,.06);border:1px solid rgba(255,107,138,.18);">
+                                <span class="badge rounded-pill px-2.5 py-1 mb-1.5 text-light" style="background:rgba(255,255,255,.08);font-size:.72rem;">{{ prompt.question }}</span>
+                                <p class="text-white fw-medium mb-0 small" style="line-height:1.5;">"{{ prompt.answer }}"</p>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
+                    {% endif %}
+
+                    <!-- ════════ COMPATIBILITY RADAR SECTION ════════ -->
+                    {% if radar_data %}
+                    <hr style="border-color:rgba(255,255,255,.08);margin:1.5rem 0;">
+                    <div>
+                        <h6 class="fw-bold text-white mb-3" style="font-family:'Playfair Display',serif;">
+                            <i class="bi bi-pie-chart-fill me-2" style="color:#6c5ce7;"></i>Compatibility Breakdown with You
+                        </h6>
+                        
+                        <div class="d-flex flex-column gap-2">
+                            {% for dim in radar_data.dimensions %}
+                            <div>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="text-light"><i class="bi {{ dim.icon }} me-1" style="color:{{ dim.color }}"></i>{{ dim.label }}</span>
+                                    <span class="fw-bold" style="color:{{ dim.color }}">{{ dim.score }}%</span>
+                                </div>
+                                <div class="progress" style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;">
+                                    <div class="progress-bar" style="width:{{ dim.score }}%;background:{{ dim.color }};border-radius:4px;"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
 
                 </div>
             </div>
+
         </div>
 
     </div>
 </section>
+
+<!-- Block Modal -->
+<div class="modal fade" id="blockModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-light" style="background:#1a1a2e;border:1px solid rgba(220,53,69,.3)!important;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-slash-circle me-2"></i>Block {{ profile.user.first_name|default:profile.user.username }}?</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'block_user' profile.user.pk %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-3">Blocked users cannot see your profile, message you, or appear in discovery decks.</p>
+                    <label class="form-label small fw-bold">Reason (Optional)</label>
+                    <input type="text" name="reason" placeholder="Reason for blocking..." class="form-control bg-dark text-white border-0 py-2.5" style="border-radius:12px;">
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Block Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-light" style="background:#1a1a2e;border:1px solid rgba(255,193,7,.3)!important;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-warning"><i class="bi bi-flag-fill me-2"></i>Report Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'report_user' profile.user.pk %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Category</label>
+                        <select name="category" class="form-select bg-dark text-white border-0 py-2.5" style="border-radius:12px;" required>
+                            <option value="harassment">Harassment or Bullying</option>
+                            <option value="inappropriate_content">Inappropriate Photos or Bio</option>
+                            <option value="fake_profile">Fake Account or Impersonation</option>
+                            <option value="spam">Spam or Commercial Solicitation</option>
+                            <option value="other">Other Reason</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Details</label>
+                        <textarea name="description" rows="3" required placeholder="Please describe what happened..." class="form-control bg-dark text-white border-0" style="border-radius:12px;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark rounded-pill px-4 fw-bold">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
